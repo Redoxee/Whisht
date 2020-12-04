@@ -1,2 +1,3 @@
-# Whisht
+# Wist
+
 A cardGame
