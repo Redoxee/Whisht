@@ -9,6 +9,7 @@ namespace WistGame
         public readonly int Index;
 
         public List<Card> Hand = new List<Card>();
+        public Failures[] Failures;
         public int Bet;
         public int Score;
 

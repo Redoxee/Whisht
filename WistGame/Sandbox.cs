@@ -5,6 +5,9 @@
         public Deck Deck;
         public Player[] Players;
         public Card FamillyCard;
+        public Card RequieredCard;
+
+        public PlayedCard[] PlayedCards;
 
         public int MaxHandSize;
 
@@ -29,6 +32,11 @@
             {
                 return this.MaxHandSize + (this.MaxHandSize - (turn + 1));
             }
+        }
+
+        public int GetCurrentHandSize()
+        {
+            return this.GetHandSizeForTurn(this.CurrentTurn);
         }
     }
 }

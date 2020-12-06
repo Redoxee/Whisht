@@ -9,7 +9,7 @@ namespace WistGame
             GameManager gameManager = new GameManager(numberOfPlayers: 3, maxHandSize: 5);
 
             GameStateMachine stateMachine = new GameStateMachine();
-            GameState firstTurnState = new SetupTurn(stateMachine);
+            GameState firstTurnState = new InitializeTurnState(stateMachine);
             stateMachine.SetInitialState(firstTurnState); ;
 
             stateMachine.ProcessOrder(null);

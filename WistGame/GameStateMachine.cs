@@ -36,22 +36,15 @@ namespace WistGame
                 GameState next = this.nextGameState;
                 this.nextGameState = null;
                 this.currentState = next;
-                this.currentState.StartState();
+                this.currentState.StartState(this);
             }
         }
     }
 
     public abstract class GameState
     {
-        protected GameStateMachine StateMachine = null;
+        public abstract void StartState(GameStateMachine stateMachine);
 
-        public GameState(GameStateMachine stateMachine)
-        {
-            this.StateMachine = stateMachine;
-        }
-
-        public abstract void StartState();
-
-        public abstract void ProcessOrder(GameStateMachine context, GameOrder order);
+        public abstract void ProcessOrder(GameStateMachine stateMachine, GameOrder order);
     }
 }
