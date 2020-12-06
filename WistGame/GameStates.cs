@@ -7,8 +7,9 @@
             stateMachine.SetNextState(new InitializeTurnState());
         }
 
-        public override void ProcessOrder(GameStateMachine stateMachine, GameOrder order)
+        public override Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order)
         {
+            return Failures.WrongOrder;
         }
     }
 
@@ -40,9 +41,9 @@
             stateMachine.SetNextState(new BettingState());
         }
 
-        public override void ProcessOrder(GameStateMachine context, GameOrder order)
+        public override Failures ProcessOrder(GameStateMachine context, GameOrder order)
         {
-            throw new System.NotImplementedException();
+            return Failures.WrongOrder;
         }
     }
 
@@ -63,25 +64,25 @@
             }
         }
 
-        public override void ProcessOrder(GameStateMachine stateMachine, GameOrder order)
+        public override Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order)
         {
             PlaceBetOrder betOrder = order as PlaceBetOrder;
             if (betOrder == null)
             {
-                return;
+                return Failures.WrongOrder;
             }
 
             Sandbox sandbox = GameManager.Instance.Sandbox;
 
             if (sandbox.CurrentPlayer != betOrder.PlayerIndex)
             {
-                return;
+                return Failures.WrongPlayer;
             }
 
             int handSize = sandbox.GetCurrentHandSize();
-            if (betOrder.Bet < 0 || betOrder.Bet >= handSize)
+            if (betOrder.Bet < 0 || betOrder.Bet > handSize)
             {
-                return;
+                return Failures.BetOutOfBounds;
             }
 
             if (sandbox.CurrentPlayer == this.lastBettingPlayer)
@@ -89,7 +90,7 @@
                 int forbidenBet = this.GetForbidenBet();
                 if (betOrder.Bet == forbidenBet)
                 {
-                    return;
+                    return Failures.BetValueForbiden;
                 }
             }
 
@@ -101,6 +102,14 @@
                 stateMachine.SetNextState(new FoldState());
             }
 
+            return Failures.None;
+        }
+
+        public override string GetDebugMessage()
+        {
+            Sandbox sandbox = GameManager.Instance.Sandbox;
+
+            return $"{this.GetType().Name} - Waiting for bet order from player {sandbox.CurrentPlayer}, Hand : [{string.Join(",", sandbox.Players[sandbox.CurrentPlayer].Hand)}].";
         }
 
         private int GetForbidenBet()
@@ -146,31 +155,31 @@
             }
         }
 
-        public override void ProcessOrder(GameStateMachine stateMachine, GameOrder order)
+        public override Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order)
         {
             PlayCardOrder playCardOrder = order as PlayCardOrder;
             if (playCardOrder == null)
             {
-                return;
+                return Failures.WrongOrder;
             }
 
             Sandbox sandbox = GameManager.Instance.Sandbox;
 
             if (playCardOrder.PlayerIndex != sandbox.CurrentPlayer)
             {
-                return;
+                return Failures.WrongPlayer;
             }
 
             Player player = sandbox.Players[playCardOrder.PlayerIndex];
 
             if (playCardOrder.CardIndex < 0 || playCardOrder.CardIndex >= player.Hand.Count)
             {
-                return;
+                return Failures.CardOutOfBounds;
             }
 
             if (player.Failures[playCardOrder.CardIndex] != Failures.None)
             {
-                return;
+                return player.Failures[playCardOrder.CardIndex];
             }
 
             ref PlayedCard playedCard = ref sandbox.PlayedCards[player.Index];
@@ -216,6 +225,8 @@
             {
                 stateMachine.SetNextState(new ResolveFoldState());
             }
+
+            return Failures.None;
         }
 
     }
@@ -300,19 +311,21 @@
             stateMachine.SetNextState(new EndGameState());
         }
      
-        public override void ProcessOrder(GameStateMachine stateMachine, GameOrder order)
+        public override Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order)
         {
+            return Failures.WrongOrder;
         }
     }
 
     internal class EndGameState : GameState
     {
-        public override void ProcessOrder(GameStateMachine stateMachine, GameOrder order)
+        public override void StartState(GameStateMachine stateMachine)
         {
         }
 
-        public override void StartState(GameStateMachine stateMachine)
+        public override Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order)
         {
+            return Failures.WrongOrder;
         }
     }
 }

@@ -9,16 +9,20 @@ namespace WistGame
         private GameState currentState = null;
         private GameState nextGameState = null;
         
-        public void ProcessOrder(GameOrder order)
+        public Failures ProcessOrder(GameOrder order)
         {
+            Failures failure = Failures.None;
             System.Console.WriteLine($"[GameStateMachine] processing order {(order != null ? order.ToString() : "null")}.");
             if (this.currentState != null)
             {
-                this.currentState.ProcessOrder(this, order);
+                failure |= this.currentState.ProcessOrder(this, order);
             }
 
             this.ResolveNextState();
+
+            return failure;
         }
+
         public void SetNextState(GameState nextState)
         {
             this.nextGameState = nextState;
@@ -29,6 +33,16 @@ namespace WistGame
             System.Console.WriteLine($"[GameStateMachine] Initial state {initialState.GetType().Name}.");
             this.nextGameState = initialState;
             this.ResolveNextState();
+        }
+
+        public string GetDebugString()
+        {
+            if (this.currentState != null)
+            {
+                return this.currentState.GetDebugMessage();
+            }
+
+            return "No current state";
         }
 
         private void ResolveNextState()
@@ -57,6 +71,11 @@ namespace WistGame
     {
         public abstract void StartState(GameStateMachine stateMachine);
 
-        public abstract void ProcessOrder(GameStateMachine stateMachine, GameOrder order);
+        public abstract Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order);
+
+        public virtual string GetDebugMessage()
+        {
+            return this.GetType().Name;
+        }
     }
 }
