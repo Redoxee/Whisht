@@ -11,6 +11,7 @@ namespace WistGame
         public List<Card> Hand = new List<Card>();
         public Failures[] Failures;
         public int Bet;
+        public int FoldWon;
         public int Score;
 
         public int SelectedCard;

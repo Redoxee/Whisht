@@ -1,6 +1,18 @@
 ﻿namespace WistGame
 {
-    public class InitializeTurnState : GameState
+    internal class InitializeGameState : GameState
+    {
+        public override void StartState(GameStateMachine stateMachine)
+        {
+            stateMachine.SetNextState(new InitializeTurnState());
+        }
+
+        public override void ProcessOrder(GameStateMachine stateMachine, GameOrder order)
+        {
+        }
+    }
+
+    internal class InitializeTurnState : GameState
     {
         public override void StartState(GameStateMachine stateMachine)
         {
@@ -23,7 +35,7 @@
                 }
             }
 
-            game.Sandbox.FamillyCard = game.Sandbox.Deck.PickCard();
+            game.Sandbox.TrumpCard = game.Sandbox.Deck.PickCard();
 
             stateMachine.SetNextState(new BettingState());
         }
@@ -34,7 +46,7 @@
         }
     }
 
-    public class BettingState : GameState
+    internal class BettingState : GameState
     {
         private int lastBettingPlayer = 0;
 
@@ -107,13 +119,13 @@
         }
     }
 
-    public class PlaceBetOrder : GameOrder
+    internal class PlaceBetOrder : GameOrder
     {
         public int PlayerIndex;
         public int Bet;
     }
 
-    public class FoldState : GameState
+    internal class FoldState : GameState
     {
         public override void StartState(GameStateMachine stateMachine)
         {
@@ -169,7 +181,7 @@
 
             if (sandbox.CurrentPlayer == 0)
             {
-                sandbox.RequieredCard = playedCard.Card;
+                sandbox.AskedCard = playedCard.Card;
 
                 for (int playerIndex = 0; playerIndex < sandbox.Players.Length; ++playerIndex)
                 {
@@ -178,19 +190,19 @@
                     for (int cardIndex = 0; cardIndex < sandbox.Players[playerIndex].Hand.Count; ++cardIndex)
                     {
                         Sigil cardColor = sandbox.Players[playerIndex].Hand[cardIndex].Sigil;
-                        hasRequieredColor |= cardColor == sandbox.RequieredCard.Sigil;
-                        hasFamilyColor |= cardColor == sandbox.FamillyCard.Sigil;
+                        hasRequieredColor |= cardColor == sandbox.AskedCard.Sigil;
+                        hasFamilyColor |= cardColor == sandbox.TrumpCard.Sigil;
                     }
 
                     for (int cardIndex = 0; cardIndex < sandbox.Players[playerIndex].Hand.Count; ++cardIndex)
                     {
                         Sigil cardColor = sandbox.Players[playerIndex].Hand[cardIndex].Sigil;
-                        if (hasRequieredColor && cardColor != sandbox.RequieredCard.Sigil)
+                        if (hasRequieredColor && cardColor != sandbox.AskedCard.Sigil)
                         {
                             sandbox.Players[playerIndex].Failures[cardIndex] |= Failures.ColorCardAvailable;
                         }
 
-                        if (hasFamilyColor && cardColor != sandbox.FamillyCard.Sigil)
+                        if (hasFamilyColor && cardColor != sandbox.TrumpCard.Sigil)
                         {
                             sandbox.Players[playerIndex].Failures[cardIndex] |= Failures.FamilyCardAvailable;
                         }
@@ -208,20 +220,98 @@
 
     }
 
-    public class PlayCardOrder : GameOrder 
+    internal class PlayCardOrder : GameOrder 
     {
         public int PlayerIndex;
         public int CardIndex;
     }
 
-    public class ResolveFoldState : GameState
+    internal class ResolveFoldState : GameState
     {
         public override void StartState(GameStateMachine stateMachine)
         {
+            Sandbox sandbox = GameManager.Instance.Sandbox;
+
+            ref PlayedCard foldWinner = ref sandbox.PlayedCards[0];
+            bool isCorrectFamily = foldWinner.Card.Sigil == sandbox.AskedCard.Sigil;
+            bool isTrumpFamily = foldWinner.Card.Sigil == sandbox.TrumpCard.Sigil;
+
+            for (int index = 1; index < sandbox.PlayedCards.Length; ++index)
+            {
+                ref PlayedCard otherCard = ref sandbox.PlayedCards[index];
+                bool isOtherCorrectFamily = otherCard.Card.Sigil == sandbox.AskedCard.Sigil;
+                bool isOtherTrumpFamily = otherCard.Card.Sigil == sandbox.TrumpCard.Sigil;
+
+                bool isStronger = false;
+
+                if (isOtherTrumpFamily != isTrumpFamily)
+                {
+                    if (isTrumpFamily)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        isStronger = true;
+                    }
+                }
+
+                if (!isStronger && (isOtherCorrectFamily != isCorrectFamily))
+                {
+                    if (isCorrectFamily)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        isStronger = true;
+                    }
+                }
+
+                if (!isStronger && (otherCard.Card.Value > foldWinner.Card.Value))
+                {
+                    isStronger = true;
+                }
+
+                if (isStronger)
+                {
+                    foldWinner = otherCard;
+                    isCorrectFamily = isOtherCorrectFamily;
+                    isTrumpFamily = isOtherTrumpFamily;
+                }
+            }
+
+            sandbox.Players[foldWinner.PlayerIndex].FoldWon++;
+            sandbox.RemainingFoldInTurn--;
             
+            if (sandbox.RemainingFoldInTurn > 0)
+            {
+                stateMachine.SetNextState(new FoldState());
+                return;
+            }
+
+            sandbox.CurrentTurn++;
+            if (sandbox.CurrentTurn < sandbox.NumberOfTurns)
+            {
+                stateMachine.SetNextState(new InitializeTurnState());
+                return;
+            }
+
+            stateMachine.SetNextState(new EndGameState());
         }
      
         public override void ProcessOrder(GameStateMachine stateMachine, GameOrder order)
+        {
+        }
+    }
+
+    internal class EndGameState : GameState
+    {
+        public override void ProcessOrder(GameStateMachine stateMachine, GameOrder order)
+        {
+        }
+
+        public override void StartState(GameStateMachine stateMachine)
         {
         }
     }

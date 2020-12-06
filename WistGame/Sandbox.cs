@@ -4,12 +4,14 @@
     {
         public Deck Deck;
         public Player[] Players;
-        public Card FamillyCard;
-        public Card RequieredCard;
+        public Card TrumpCard;
+        public Card AskedCard;
 
         public PlayedCard[] PlayedCards;
 
         public int MaxHandSize;
+
+        public int RemainingFoldInTurn;
 
         public int CurrentTurn;
         public int CurrentPlayer;

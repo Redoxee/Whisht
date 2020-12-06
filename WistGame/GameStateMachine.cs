@@ -4,13 +4,14 @@ using System.Text;
 
 namespace WistGame
 {
-    public class GameStateMachine
+    internal class GameStateMachine
     {
         private GameState currentState = null;
         private GameState nextGameState = null;
         
         public void ProcessOrder(GameOrder order)
         {
+            System.Console.WriteLine($"[GameStateMachine] processing order {(order != null ? order.ToString() : "null")}.");
             if (this.currentState != null)
             {
                 this.currentState.ProcessOrder(this, order);
@@ -25,23 +26,34 @@ namespace WistGame
 
         public void SetInitialState(GameState initialState)
         {
+            System.Console.WriteLine($"[GameStateMachine] Initial state {initialState.GetType().Name}.");
             this.nextGameState = initialState;
             this.ResolveNextState();
         }
 
         private void ResolveNextState()
         {
-            while (this.nextGameState != null)
+            int loopCounter = 0;
+            const int tooManyLoop = 64;
+            while (this.nextGameState != null && loopCounter < tooManyLoop)
             {
                 GameState next = this.nextGameState;
+                System.Console.WriteLine($"[GameStateMachine] Transitioning from state {(this.currentState != null ? this.currentState.ToString() : "null")} to state {next.GetType().Name}.");
                 this.nextGameState = null;
                 this.currentState = next;
                 this.currentState.StartState(this);
+
+                loopCounter++;
+            }
+
+            if (loopCounter >= tooManyLoop)
+            {
+                System.Console.Error.WriteLine($"[GameStateMachine] Too many loop while resolving states!");
             }
         }
     }
 
-    public abstract class GameState
+    internal abstract class GameState
     {
         public abstract void StartState(GameStateMachine stateMachine);
 
