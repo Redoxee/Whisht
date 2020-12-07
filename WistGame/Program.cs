@@ -6,7 +6,7 @@ namespace WistGame
     {
         static void Main(string[] args)
         {
-            GameManager gameManager = new GameManager(numberOfPlayers: 3, maxHandSize: 5);
+            GameManager gameManager = new GameManager(numberOfPlayers: 2, maxHandSize: 5);
 
             GameStateMachine stateMachine = new GameStateMachine();
             GameState firstState = new InitializeGameState();
@@ -49,7 +49,9 @@ namespace WistGame
 
             GameOrder order = null;
 
-            if (input[2].Trim().ToLower() == "bet")
+            string stringOrder = input[2].Trim().ToLower();
+
+            if (stringOrder == "bet")
             {
                 int playerIndex;
                 int betValue;
@@ -69,6 +71,27 @@ namespace WistGame
                     Bet = betValue,
                 };
             }
+            else if (stringOrder == "play")
+            {
+                int playerIndex;
+                int cardIndex;
+                if (!int.TryParse(input[1], out playerIndex))
+                {
+                    return null;
+                }
+
+                if (!int.TryParse(input[3], out cardIndex))
+                {
+                    return null;
+                }
+
+                order = new PlayCardOrder()
+                {
+                    PlayerIndex = playerIndex,
+                    CardIndex = cardIndex,
+                };
+            }
+            
 
             return order;
         }

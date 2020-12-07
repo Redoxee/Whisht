@@ -141,9 +141,11 @@
             Sandbox sandbox = GameManager.Instance.Sandbox;
             sandbox.CurrentPlayer = 0;
 
-            for (int index = 0; index < sandbox.Players.Length; ++index)
+            sandbox.PlayedCards = new PlayedCard[sandbox.Players.Length];
+
+            for (int playerIndex = 0; playerIndex < sandbox.Players.Length; ++playerIndex)
             {
-                Player player = sandbox.Players[index];
+                Player player = sandbox.Players[playerIndex];
                 player.SelectedCard = -1;
 
                 int handSize = player.Hand.Count;
@@ -152,6 +154,8 @@
                 {
                     player.Failures[cardIndex] = Failures.None;
                 }
+
+                sandbox.PlayedCards[playerIndex].PlayerIndex = -1;
             }
         }
 
@@ -229,6 +233,12 @@
             return Failures.None;
         }
 
+
+        public override string GetDebugMessage()
+        {
+            Sandbox sandbox = GameManager.Instance.Sandbox;
+            return $"{base.GetDebugMessage()} - Waiting for player {sandbox.CurrentPlayer} to play a card, Hand : [{string.Join(",", sandbox.Players[sandbox.CurrentPlayer].Hand)}].";
+        }
     }
 
     internal class PlayCardOrder : GameOrder 
