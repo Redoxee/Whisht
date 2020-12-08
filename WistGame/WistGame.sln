@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WistGame", "WistGame.csproj", "{B90886F0-0570-4E52-B7C6-4F60696C70E9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WistGame", "WistGame\WistGame.csproj", "{0FF08F14-DD10-4698-8D48-6B31608FA01F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebServer", "WistServer\WebServer\WebServer.csproj", "{6A0B79E0-8DA4-49B9-A3A6-B72B53CD5672}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B90886F0-0570-4E52-B7C6-4F60696C70E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B90886F0-0570-4E52-B7C6-4F60696C70E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B90886F0-0570-4E52-B7C6-4F60696C70E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B90886F0-0570-4E52-B7C6-4F60696C70E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FF08F14-DD10-4698-8D48-6B31608FA01F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FF08F14-DD10-4698-8D48-6B31608FA01F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FF08F14-DD10-4698-8D48-6B31608FA01F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FF08F14-DD10-4698-8D48-6B31608FA01F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A0B79E0-8DA4-49B9-A3A6-B72B53CD5672}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A0B79E0-8DA4-49B9-A3A6-B72B53CD5672}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A0B79E0-8DA4-49B9-A3A6-B72B53CD5672}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A0B79E0-8DA4-49B9-A3A6-B72B53CD5672}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
