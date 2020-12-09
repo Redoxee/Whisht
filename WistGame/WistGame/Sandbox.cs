@@ -1,6 +1,6 @@
 ﻿namespace WistGame
 {
-    class Sandbox
+    public class Sandbox
     {
         public Deck Deck;
         public Player[] Players;

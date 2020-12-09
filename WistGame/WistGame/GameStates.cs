@@ -4,6 +4,13 @@
     {
         public override void StartState(GameStateMachine stateMachine)
         {
+            Sandbox sandbox = stateMachine.gameManager.Sandbox;
+
+            for (int index = 0; index < sandbox.Players.Length; ++index)
+            {
+                sandbox.Players[index].Score = 0;
+            }
+
             stateMachine.SetNextState(new InitializeTurnState());
         }
 
@@ -17,26 +24,26 @@
     {
         public override void StartState(GameStateMachine stateMachine)
         {
-            GameManager game = GameManager.Instance;
-            game.Sandbox.Deck.RefillDeck();
-            game.Sandbox.Deck.Shuffle();
+            Sandbox sandbox = stateMachine.gameManager.Sandbox;
+            sandbox.Deck.RefillDeck();
+            sandbox.Deck.Shuffle();
 
-            int handSize = game.Sandbox.GetHandSizeForTurn(game.Sandbox.CurrentTurn);
+            int handSize = sandbox.GetHandSizeForTurn(sandbox.CurrentTurn);
 
-            for (int playerIndex = 0; playerIndex < game.Sandbox.Players.Length; ++playerIndex)
+            for (int playerIndex = 0; playerIndex < sandbox.Players.Length; ++playerIndex)
             {
-                Player player = game.Sandbox.Players[playerIndex];
+                Player player = sandbox.Players[playerIndex];
                 player.Hand.Clear();
                 player.SelectedCard = -1;
                 player.Bet = -1;
 
                 for (int cardIndex = 0; cardIndex < handSize; ++cardIndex)
                 {
-                    player.Hand.Add(game.Sandbox.Deck.PickCard());
+                    player.Hand.Add(sandbox.Deck.PickCard());
                 }
             }
 
-            game.Sandbox.TrumpCard = game.Sandbox.Deck.PickCard();
+            sandbox.TrumpCard = sandbox.Deck.PickCard();
 
             stateMachine.SetNextState(new BettingState());
         }
@@ -53,7 +60,7 @@
 
         public override void StartState(GameStateMachine stateMachine)
         {
-            Sandbox sandbox = GameManager.Instance.Sandbox;
+            Sandbox sandbox = stateMachine.gameManager.Sandbox;
 
             sandbox.CurrentPlayer = 0;
             this.lastBettingPlayer = sandbox.Players.Length - 1;
@@ -72,7 +79,7 @@
                 return Failures.WrongOrder;
             }
 
-            Sandbox sandbox = GameManager.Instance.Sandbox;
+            Sandbox sandbox = stateMachine.gameManager.Sandbox;
 
             if (sandbox.CurrentPlayer != betOrder.PlayerIndex)
             {
@@ -87,7 +94,7 @@
 
             if (sandbox.CurrentPlayer == this.lastBettingPlayer)
             {
-                int forbidenBet = this.GetForbidenBet();
+                int forbidenBet = this.GetForbidenBet(stateMachine);
                 if (betOrder.Bet == forbidenBet)
                 {
                     return Failures.BetValueForbiden;
@@ -105,16 +112,16 @@
             return Failures.None;
         }
 
-        public override string GetDebugMessage()
+        public override string GetDebugMessage(GameStateMachine stateMachine)
         {
-            Sandbox sandbox = GameManager.Instance.Sandbox;
+            Sandbox sandbox = stateMachine.gameManager.Sandbox;
 
             return $"{this.GetType().Name} - Waiting for bet order from player {sandbox.CurrentPlayer}, Hand : [{string.Join(",", sandbox.Players[sandbox.CurrentPlayer].Hand)}].";
         }
 
-        private int GetForbidenBet()
+        private int GetForbidenBet(GameStateMachine stateMachine)
         {
-            Sandbox sandbox = GameManager.Instance.Sandbox;
+            Sandbox sandbox = stateMachine.gameManager.Sandbox;
             int handSize = sandbox.GetCurrentHandSize();
             int betCummul = 0;
             for (int index = 0; index < this.lastBettingPlayer; ++index)
@@ -138,7 +145,7 @@
     {
         public override void StartState(GameStateMachine stateMachine)
         {
-            Sandbox sandbox = GameManager.Instance.Sandbox;
+            Sandbox sandbox = stateMachine.gameManager.Sandbox;
             sandbox.CurrentPlayer = 0;
 
             sandbox.PlayedCards = new PlayedCard[sandbox.Players.Length];
@@ -167,7 +174,7 @@
                 return Failures.WrongOrder;
             }
 
-            Sandbox sandbox = GameManager.Instance.Sandbox;
+            Sandbox sandbox = stateMachine.gameManager.Sandbox;
 
             if (playCardOrder.PlayerIndex != sandbox.CurrentPlayer)
             {
@@ -234,10 +241,10 @@
         }
 
 
-        public override string GetDebugMessage()
+        public override string GetDebugMessage(GameStateMachine stateMachine)
         {
-            Sandbox sandbox = GameManager.Instance.Sandbox;
-            return $"{base.GetDebugMessage()} - Waiting for player {sandbox.CurrentPlayer} to play a card, Hand : [{string.Join(",", sandbox.Players[sandbox.CurrentPlayer].Hand)}].";
+            Sandbox sandbox = stateMachine.gameManager.Sandbox;
+            return $"{base.GetDebugMessage(stateMachine)} - Waiting for player {sandbox.CurrentPlayer} to play a card, Hand : [{string.Join(",", sandbox.Players[sandbox.CurrentPlayer].Hand)}].";
         }
     }
 
@@ -251,7 +258,7 @@
     {
         public override void StartState(GameStateMachine stateMachine)
         {
-            Sandbox sandbox = GameManager.Instance.Sandbox;
+            Sandbox sandbox = stateMachine.gameManager.Sandbox;
 
             ref PlayedCard foldWinner = ref sandbox.PlayedCards[0];
             bool isCorrectFamily = foldWinner.Card.Sigil == sandbox.AskedCard.Sigil;

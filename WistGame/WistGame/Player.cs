@@ -4,7 +4,7 @@ using System.Text;
 
 namespace WistGame
 {
-    class Player
+    public class Player
     {
         public readonly int Index;
 

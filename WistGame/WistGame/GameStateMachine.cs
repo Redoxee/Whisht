@@ -6,9 +6,16 @@ namespace WistGame
 {
     internal class GameStateMachine
     {
+        internal GameManager gameManager;
+
         private GameState currentState = null;
         private GameState nextGameState = null;
-        
+
+        public GameStateMachine(GameManager manager)
+        {
+            this.gameManager = manager;
+        }
+
         public Failures ProcessOrder(GameOrder order)
         {
             Failures failure = Failures.None;
@@ -39,7 +46,7 @@ namespace WistGame
         {
             if (this.currentState != null)
             {
-                return this.currentState.GetDebugMessage();
+                return this.currentState.GetDebugMessage(this);
             }
 
             return "No current state";
@@ -73,7 +80,7 @@ namespace WistGame
 
         public abstract Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order);
 
-        public virtual string GetDebugMessage()
+        public virtual string GetDebugMessage(GameStateMachine stateMachine)
         {
             return this.GetType().Name;
         }

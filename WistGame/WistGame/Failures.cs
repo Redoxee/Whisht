@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace WistGame
 {
     [System.Flags]
-    enum Failures : ulong
+    public enum Failures : ulong
     {
         None                    = 0,
         Unknown                 = 1 << 0,

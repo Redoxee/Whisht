@@ -2,20 +2,16 @@
 
 namespace WistGame
 {
-    class Program
+    class TestProgram
     {
         static void Main(string[] args)
         {
-            GameManager gameManager = new GameManager(numberOfPlayers: 2, maxHandSize: 5);
-
-            GameStateMachine stateMachine = new GameStateMachine();
-            GameState firstState = new InitializeGameState();
-            stateMachine.SetInitialState(firstState);
+            GameManager gameManager = new GameManager(numberOfPlayers: 2, numberOfTurns: 3);
 
             bool quit = false;
             do
             {
-                System.Console.WriteLine(stateMachine.GetDebugString());
+                System.Console.WriteLine(gameManager.GetDebugString());
 
                 string line = System.Console.ReadLine();
                 string[] splitted = line.Split(' ');
@@ -28,7 +24,7 @@ namespace WistGame
                 GameOrder order = TryParseGameOrder(splitted);
                 if (order != null)
                 {
-                    Failures failure = stateMachine.ProcessOrder(order);
+                    Failures failure = gameManager.ProcessOrder(order);
                     System.Console.WriteLine(failure.ToString());
                 }
                 

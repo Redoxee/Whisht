@@ -1,6 +1,6 @@
 ﻿namespace WistGame
 {
-    struct PlayedCard
+    public struct PlayedCard
     {
         public int PlayerIndex;
         public Card Card;
