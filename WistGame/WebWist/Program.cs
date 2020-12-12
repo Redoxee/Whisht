@@ -17,14 +17,17 @@ namespace WebWist
             GameProcess gp = GameProcess.Instance;
             gp.InitializeGame(2, 5);
 
-            CreateHostBuilder(args).Build().Run();
-        }
+            RestWorker.StartRestWorker(args);
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
+            bool stop = false;
+            while (!stop)
+            {
+                string line = Console.ReadLine();
+                if (line.ToLower() == "quit")
                 {
-                    webBuilder.UseStartup<Startup>();
-                });
+                    stop = true;
+                }
+            };
+        }
     }
 }

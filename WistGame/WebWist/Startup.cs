@@ -30,7 +30,7 @@ namespace WebWist
             }
 
             app.UseRouting();
-            app.UseWebSockets();
+            app.UseWebSockets(new WebSocketOptions());
 
             app.UseEndpoints(endpoints =>
             {
@@ -48,11 +48,12 @@ namespace WebWist
 
         private async Task gameEndPoint(HttpContext context)
         {
+            System.Console.WriteLine("Game request.");
             if (context.WebSockets.IsWebSocketRequest)
             {
                 using (WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync())
                 {
-                    
+                    await Echo(context, webSocket);
                 }
             }
             else
