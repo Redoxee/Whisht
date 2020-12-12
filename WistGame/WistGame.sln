@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WistGame", "WistGame\WistGame.csproj", "{0FF08F14-DD10-4698-8D48-6B31608FA01F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebWist", "WebWist\WebWist.csproj", "{A576E52A-BE3B-4F03-82CB-D21F634FBAA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebWist", "WebWist\WebWist.csproj", "{A576E52A-BE3B-4F03-82CB-D21F634FBAA6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineWist", "OnlineWist\OnlineWist.csproj", "{DCEC5401-A68C-42D3-9D80-BF95BC88FBCA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{A576E52A-BE3B-4F03-82CB-D21F634FBAA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A576E52A-BE3B-4F03-82CB-D21F634FBAA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A576E52A-BE3B-4F03-82CB-D21F634FBAA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCEC5401-A68C-42D3-9D80-BF95BC88FBCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCEC5401-A68C-42D3-9D80-BF95BC88FBCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCEC5401-A68C-42D3-9D80-BF95BC88FBCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCEC5401-A68C-42D3-9D80-BF95BC88FBCA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
