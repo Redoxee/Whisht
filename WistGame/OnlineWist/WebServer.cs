@@ -9,9 +9,9 @@ namespace OnlineWist
     public class WebServer
     {
         private readonly HttpListener listeners = new HttpListener();
-        private readonly Func<HttpListenerRequest, string> responseMethodes;
+        private readonly Func<HttpListenerContext, string> responseMethodes;
 
-        public WebServer(IReadOnlyCollection<string> prefixes, Func<HttpListenerRequest, string> method)
+        public WebServer(IReadOnlyCollection<string> prefixes, Func<HttpListenerContext, string> method)
         {
             if (!HttpListener.IsSupported)
             {
@@ -38,7 +38,7 @@ namespace OnlineWist
             this.listeners.Start();
         }
 
-        public WebServer(Func<HttpListenerRequest, string> method, params string[] prefixes)
+        public WebServer(Func<HttpListenerContext, string> method, params string[] prefixes)
            : this(prefixes, method)
         {
         }
@@ -81,7 +81,7 @@ namespace OnlineWist
                     return;
                 }
 
-                var responsString = this.responseMethodes(context.Request);
+                var responsString = this.responseMethodes(context);
                 var buffer = Encoding.UTF8.GetBytes(responsString);
                 context.Response.ContentLength64 = buffer.Length;
                 context.Response.OutputStream.Write(buffer, 0, buffer.Length);

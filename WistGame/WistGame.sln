@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WistGame", "WistGame\WistGa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebWist", "WebWist\WebWist.csproj", "{A576E52A-BE3B-4F03-82CB-D21F634FBAA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineWist", "OnlineWist\OnlineWist.csproj", "{DCEC5401-A68C-42D3-9D80-BF95BC88FBCA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
