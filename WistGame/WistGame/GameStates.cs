@@ -135,7 +135,7 @@
         }
     }
 
-    internal class PlaceBetOrder : GameOrder
+    public class PlaceBetOrder : GameOrder
     {
         public int PlayerIndex;
         public int Bet;
@@ -248,7 +248,7 @@
         }
     }
 
-    internal class PlayCardOrder : GameOrder 
+    public class PlayCardOrder : GameOrder 
     {
         public int PlayerIndex;
         public int CardIndex;

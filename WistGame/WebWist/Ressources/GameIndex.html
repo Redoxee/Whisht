@@ -31,7 +31,7 @@
         // wsUri = "ws://echo.websocket.org/",
         websocket = null,
         isConnected = false;
-    var gameWebSocketUrl = document.URL.replace("https://", "ws://") + "Game";
+    var gameWebSocketUrl = document.URL.replace("http://", "ws://");
 
     writeToScreen("WS URI " + gameWebSocketUrl);
 
