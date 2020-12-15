@@ -1,0 +1,1 @@
+E:\vcpkg\installed\x86-windows\tools\flatbuffers\flatc.exe --csharp Wist.fbs
