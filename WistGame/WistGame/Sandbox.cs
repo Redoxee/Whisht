@@ -12,6 +12,7 @@
         public int MaxHandSize;
 
         public int RemainingFoldInTurn;
+        public int FirstFoldPlayer;
 
         public int CurrentTurn;
         public int CurrentPlayer;
@@ -22,6 +23,11 @@
             {
                 return this.MaxHandSize * 2 - 1;
             }
+        }
+
+        public int NumberOfPlayers
+        {
+            get => this.Players.Length;
         }
 
         public int GetHandSizeForTurn(int turn)

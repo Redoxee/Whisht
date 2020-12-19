@@ -25,7 +25,7 @@ namespace WistGame
 
             for (int sigilIndex = 0; sigilIndex < sigils.Length; ++sigilIndex)
             {
-                for (uint cardValueIndex = 0; cardValueIndex < Card.ValueNames.Length; ++cardValueIndex)
+                for (short cardValueIndex = 0; cardValueIndex < Card.ValueNames.Length; ++cardValueIndex)
                 {
                     ref Card card = ref this.Cards[this.NumberOfCards++];
                     card.Sigil = (Sigil)sigilIndex;

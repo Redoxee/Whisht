@@ -33,7 +33,7 @@
             return this.gameManager;
         }
 
-        public void PostStringOrder(string input)
+        public WistGame.Failures PostStringOrder(string input)
         {
             string[] splitted = input.Split(' ');
             WistGame.GameOrder order = TryParseGameOrder(splitted);
@@ -41,8 +41,68 @@
             {
                 WistGame.Failures failure = gameManager.ProcessOrder(order);
                 System.Console.WriteLine(failure.ToString());
+                return failure;
             }
+
+            return WistGame.Failures.Unknown;
         }
+
+        public FlatBuffers.Offset<Serialization.PlayerSandbox> GetSerializePlayer(int playerIndex)
+        {
+            WistGame.Sandbox sandbox = this.gameManager.GetSandbox();
+            int numberOfPlayers = sandbox.NumberOfPlayers;
+
+            FlatBuffers.FlatBufferBuilder builder = new FlatBuffers.FlatBufferBuilder(1);
+
+            WistGame.Card trumpCard = sandbox.TrumpCard;
+            FlatBuffers.Offset<Serialization.Card> trumpOffset = Serialization.CardExtension.CreateCard(builder, trumpCard);
+
+            int cardsInHand = sandbox.Players[playerIndex].Hand.Count;
+            FlatBuffers.Offset<Serialization.Card>[] handCardOffsets = new FlatBuffers.Offset<Serialization.Card>[cardsInHand];
+            for (int cardIndex = 0; cardIndex < cardsInHand; ++cardIndex)
+            {
+                handCardOffsets[cardIndex] = Serialization.CardExtension.CreateCard(builder, sandbox.Players[playerIndex].Hand[cardIndex]);
+            }
+
+            var playerHandOffest = Serialization.PlayerSandbox.CreatePlayerHandVector(builder, handCardOffsets);
+
+            int[] placedBets = new int[numberOfPlayers];
+            int[] selectedCards = new int[numberOfPlayers];
+            int[] numberOfCardsPerPlayers = new int[numberOfPlayers];
+            for (int index = 0; index < numberOfPlayers; ++index)
+            {
+                placedBets[index] = sandbox.Players[index].Bet;
+                selectedCards[index] = sandbox.Players[index].SelectedCard;
+                numberOfCardsPerPlayers[index] = sandbox.Players[index].Hand.Count;
+            }
+
+            var placedBetOffset = Serialization.PlayerSandbox.CreatePlacedBetsVectorBlock(builder, placedBets);
+            var selectedCardOffset = Serialization.PlayerSandbox.CreatePlayedCardsVectorBlock(builder, selectedCards);
+            var numberOfCardsPerPlayerOffset = Serialization.PlayerSandbox.CreateNumberOfCardPerPlayersVectorBlock(builder, numberOfCardsPerPlayers);
+
+            Serialization.PlayerSandbox.StartPlayerSandbox(builder);
+            Serialization.PlayerSandbox.AddPlayerIndex(builder, playerIndex);
+            Serialization.PlayerSandbox.AddNumberOfPlayers(builder, sandbox.Players.Length);
+            Serialization.PlayerSandbox.AddMaxHandSize(builder, sandbox.MaxHandSize);
+            Serialization.PlayerSandbox.AddCurrentTurn(builder, sandbox.CurrentTurn);
+            Serialization.PlayerSandbox.AddCurrentState(builder, (Serialization.State)this.gameManager.GetStateID());
+            Serialization.PlayerSandbox.AddCurrentPlayer(builder, sandbox.CurrentPlayer);
+
+            builder.AddInt(sandbox.CurrentPlayer);
+            Serialization.PlayerSandbox.AddTrumpCard(builder, trumpOffset);
+
+            Serialization.PlayerSandbox.AddFirstFoldPlayer(builder, sandbox.FirstFoldPlayer);
+
+            Serialization.PlayerSandbox.AddPlacedBets(builder, placedBetOffset);
+            Serialization.PlayerSandbox.AddPlayedCards(builder, selectedCardOffset);
+            Serialization.PlayerSandbox.AddNumberOfCardPerPlayers(builder, numberOfCardsPerPlayerOffset);
+
+            Serialization.PlayerSandbox.AddPlayerHand(builder, playerHandOffest);
+
+            FlatBuffers.Offset<Serialization.PlayerSandbox> playerSandboxOffset = Serialization.PlayerSandbox.EndPlayerSandbox(builder);
+            return playerSandboxOffset;
+        }
+
         private WistGame.GameOrder TryParseGameOrder(string[] input)
         {
             if (input.Length < 4)

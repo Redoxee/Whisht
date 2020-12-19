@@ -1,0 +1,36 @@
+namespace Serialization;
+
+enum Sigil : byte { Spade, Club, Heart, Diamond}
+enum State : byte {
+        Initialize,
+        Betting,
+        Fold,
+        EndGame,
+        Unkown
+        }
+
+table Card
+{
+    Family : Sigil;
+    Value : short;
+}
+
+table PlayerSandbox
+{
+	PlayerIndex : int;
+    NumberOfPlayers : int;
+    MaxHandSize : int;
+
+    CurrentTurn : int;
+    CurrentState : State;
+    CurrentPlayer : int;
+    TrumpCard : Card;
+    FirstFoldPlayer : int;
+    PlacedBets : [int];
+    PlayedCards : [int];
+    NumberOfCardPerPlayers : [int];
+
+    PlayerHand : [Card];
+}
+
+root_type PlayerSandbox;

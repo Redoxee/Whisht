@@ -42,6 +42,16 @@ namespace WistGame
             this.ResolveNextState();
         }
 
+        public StateID GetStateID()
+        {
+            if (this.currentState != null)
+            {
+                return this.currentState.StateID;
+            }
+
+            return StateID.Unkown;
+        }
+
         public string GetDebugString()
         {
             if (this.currentState != null)
@@ -79,6 +89,11 @@ namespace WistGame
         public abstract void StartState(GameStateMachine stateMachine);
 
         public abstract Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order);
+
+        public abstract StateID StateID
+        {
+            get;
+        }
 
         public virtual string GetDebugMessage(GameStateMachine stateMachine)
         {

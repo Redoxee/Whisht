@@ -6,7 +6,7 @@ namespace WistGame
 {
     public struct Card
     {
-        public uint Value;
+        public short Value;
         public Sigil Sigil;
 
         public override string ToString()

@@ -2,6 +2,8 @@
 {
     internal class InitializeGameState : GameState
     {
+        public override StateID StateID => StateID.Initialize;
+
         public override void StartState(GameStateMachine stateMachine)
         {
             Sandbox sandbox = stateMachine.gameManager.Sandbox;
@@ -22,6 +24,8 @@
 
     internal class InitializeTurnState : GameState
     {
+        public override StateID StateID => StateID.Initialize;
+
         public override void StartState(GameStateMachine stateMachine)
         {
             Sandbox sandbox = stateMachine.gameManager.Sandbox;
@@ -57,6 +61,8 @@
     internal class BettingState : GameState
     {
         private int lastBettingPlayer = 0;
+
+        public override StateID StateID => StateID.Betting;
 
         public override void StartState(GameStateMachine stateMachine)
         {
@@ -143,10 +149,13 @@
 
     internal class FoldState : GameState
     {
+        public override StateID StateID => StateID.Fold;
+
         public override void StartState(GameStateMachine stateMachine)
         {
             Sandbox sandbox = stateMachine.gameManager.Sandbox;
             sandbox.CurrentPlayer = 0;
+            sandbox.FirstFoldPlayer = sandbox.CurrentPlayer;
 
             sandbox.PlayedCards = new PlayedCard[sandbox.Players.Length];
 
@@ -256,6 +265,8 @@
 
     internal class ResolveFoldState : GameState
     {
+        public override StateID StateID => StateID.Fold;
+
         public override void StartState(GameStateMachine stateMachine)
         {
             Sandbox sandbox = stateMachine.gameManager.Sandbox;
@@ -336,6 +347,8 @@
 
     internal class EndGameState : GameState
     {
+        public override StateID StateID => StateID.EndGame;
+
         public override void StartState(GameStateMachine stateMachine)
         {
         }

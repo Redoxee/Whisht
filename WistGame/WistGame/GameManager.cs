@@ -47,6 +47,11 @@ namespace WistGame
             return this.stateMachine.ProcessOrder(order);
         }
 
+        public StateID GetStateID()
+        {
+            return this.stateMachine.GetStateID();
+        }
+
         public string GetDebugString()
         {
             return this.stateMachine.GetDebugString();
