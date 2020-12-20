@@ -59,9 +59,8 @@ namespace WebWist
                         if (context.Request.Headers["Accept"][0].Contains("text/html"))
                         {
                             Console.WriteLine("Sending HTML to client.");
-                            ResourceManager resourceManager = new ResourceManager("WebWist.Properties.Resources", typeof(Program).Assembly);
-                            string indexFile = (resourceManager.GetString("GameIndex"));
-                            await context.Response.WriteAsync(indexFile);
+                            string response = RestRequestService.HandleRestRequest(context);
+                            await context.Response.WriteAsync(response);
                         }
                         else
                         {
