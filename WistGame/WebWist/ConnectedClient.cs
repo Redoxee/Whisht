@@ -22,7 +22,7 @@ namespace WebWist
 
         public TaskCompletionSource<object> TaskCompletion { get; private set; }
 
-        public BlockingCollection<string> BroadcastQueue { get; } = new BlockingCollection<string>();
+        public BlockingCollection<byte[]> MessageQueue { get; } = new BlockingCollection<byte[]>();
 
         public CancellationTokenSource BroadcastLoopTokenSource { get; set; } = new CancellationTokenSource();
 
@@ -33,11 +33,10 @@ namespace WebWist
             {
                 try
                 {
-                    if (!cancellationToken.IsCancellationRequested && Socket.State == WebSocketState.Open && BroadcastQueue.TryTake(out string message))
+                    if (!cancellationToken.IsCancellationRequested && Socket.State == WebSocketState.Open && MessageQueue.TryTake(out byte[] message))
                     {
                         GameProcess gameProcess = GameProcess.Instance;
 
-                        gameProcess.PostStringOrder(message);
                         Console.WriteLine($"Socket {SocketId}: Sending from queue.");
                         string gameState = gameProcess.GetGameManager().GetDebugString();
                         var msgbuf = new ArraySegment<byte>(Encoding.UTF8.GetBytes(gameState));

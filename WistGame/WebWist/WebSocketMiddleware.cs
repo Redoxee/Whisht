@@ -90,11 +90,13 @@ namespace WebWist
             }
         }
 
-        public static void Broadcast(string message)
+        public static void Broadcast(byte[] message)
         {
-            Console.WriteLine($"Broadcast: {message}");
+            Console.WriteLine($"Broadcasting a message of length : {message.Length}");
             foreach (var kvp in Clients)
-                kvp.Value.BroadcastQueue.Add(message);
+            {
+                kvp.Value.MessageQueue.Add(message);
+            }
         }
 
         // event-handlers are the sole case where async void is valid
@@ -184,8 +186,7 @@ namespace WebWist
                         {
                             Console.WriteLine($"Socket {client.SocketId}: Received {receiveResult.MessageType} frame ({receiveResult.Count} bytes).");
                             Console.WriteLine($"Socket {client.SocketId}: Echoing data to queue.");
-                            string message = Encoding.UTF8.GetString(buffer.Array, 0, receiveResult.Count);
-                            client.BroadcastQueue.Add(message);
+                            client.MessageQueue.Add(Encoding.UTF8.GetBytes("Test"));
                         }
                     }
                 }

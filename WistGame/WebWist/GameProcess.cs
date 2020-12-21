@@ -47,7 +47,7 @@
             return WistGame.Failures.Unknown;
         }
 
-        public FlatBuffers.Offset<Serialization.PlayerSandbox> GetSerializePlayer(int playerIndex)
+        public byte[] GetSerializePlayer(int playerIndex)
         {
             WistGame.Sandbox sandbox = this.gameManager.GetSandbox();
             int numberOfPlayers = sandbox.NumberOfPlayers;
@@ -55,13 +55,14 @@
             FlatBuffers.FlatBufferBuilder builder = new FlatBuffers.FlatBufferBuilder(1);
 
             WistGame.Card trumpCard = sandbox.TrumpCard;
-            FlatBuffers.Offset<Serialization.Card> trumpOffset = Serialization.CardExtension.CreateCard(builder, trumpCard);
+            FlatBuffers.Offset<Serialization.Card> trumpOffset = Serialization.Card.CreateCard(builder, (Serialization.Sigil)trumpCard.Sigil, trumpCard.Value);
 
             int cardsInHand = sandbox.Players[playerIndex].Hand.Count;
             FlatBuffers.Offset<Serialization.Card>[] handCardOffsets = new FlatBuffers.Offset<Serialization.Card>[cardsInHand];
             for (int cardIndex = 0; cardIndex < cardsInHand; ++cardIndex)
             {
-                handCardOffsets[cardIndex] = Serialization.CardExtension.CreateCard(builder, sandbox.Players[playerIndex].Hand[cardIndex]);
+                WistGame.Card card = sandbox.Players[playerIndex].Hand[cardIndex];
+                handCardOffsets[cardIndex] = Serialization.Card.CreateCard(builder, (Serialization.Sigil)card.Sigil, card.Value);
             }
 
             var playerHandOffest = Serialization.PlayerSandbox.CreatePlayerHandVector(builder, handCardOffsets);
@@ -99,8 +100,8 @@
 
             Serialization.PlayerSandbox.AddPlayerHand(builder, playerHandOffest);
 
-            FlatBuffers.Offset<Serialization.PlayerSandbox> playerSandboxOffset = Serialization.PlayerSandbox.EndPlayerSandbox(builder);
-            return playerSandboxOffset;
+            Serialization.PlayerSandbox.EndPlayerSandbox(builder);
+            return builder.SizedByteArray();
         }
 
         private WistGame.GameOrder TryParseGameOrder(string[] input)

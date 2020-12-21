@@ -1,0 +1,13 @@
+include "Common.fbs";
+
+namespace Serialization;
+
+table Order
+{
+	MessageID : MessageID;
+	PlayerID : byte;
+	OrderValue1 : int = -1;
+	OrderValue2 : int = -1;
+}
+
+root_type Order;

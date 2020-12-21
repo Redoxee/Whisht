@@ -1,0 +1,30 @@
+namespace Serialization;
+
+enum MessageID : byte
+{
+    None,
+    SandboxState,
+    OrderBet,
+    OrderPlayCard,
+}
+
+enum State : byte {
+    Initialize,
+    Betting,
+    Fold,
+    EndGame,
+    Unkown
+}
+
+enum Sigil : byte { 
+    Spade, 
+    Club, 
+    Heart, 
+    Diamond
+    }
+
+table Card
+{
+    Family : Sigil;
+    Value : short;
+}

@@ -20,9 +20,11 @@ namespace WebWist
         {
             ResourceManager resourceManager = new ResourceManager("WebWist.Properties.Resources", typeof(Program).Assembly);
             string indexFile = resourceManager.GetString("GameIndex");
-            string serializationFile = resourceManager.GetString("Wist_generated");
+            string serializationCommon = resourceManager.GetString("Common_generated");
+            string serializationWist = resourceManager.GetString("Wist_generated");
 
-            string response = indexFile.Replace(RestRequestService.InsertSerializationSymole, serializationFile);
+            string insert = serializationCommon + serializationWist;
+            string response = indexFile.Replace(RestRequestService.InsertSerializationSymole, insert);
 
             return response;
         }
