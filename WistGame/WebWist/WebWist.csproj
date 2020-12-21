@@ -24,20 +24,4 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Libs\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="FlatBuffers">
-      <HintPath>Libs\FlatBuffers.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Libs\FlatBuffers.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

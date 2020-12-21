@@ -43,8 +43,7 @@ namespace WebWist
                         string gameState = gameProcess.GetGameManager().GetDebugString();
 
                         this.workingByteList.Clear();
-                        await Socket.SendAsync(new byte[]{ (byte)Serialization.MessageID.SandboxState}, WebSocketMessageType.Binary, endOfMessage: false, CancellationToken.None);
-                        byte[] sandboxBytes = gameProcess.GetSerializePlayer(0);
+                        byte[] sandboxBytes = Encoding.UTF8.GetBytes(gameProcess.GetGameManager().GetDebugString());
                         await Socket.SendAsync(sandboxBytes, WebSocketMessageType.Binary, endOfMessage: true, CancellationToken.None);
                         // await Socket.SendAsync(Encoding.UTF8.GetBytes("Test message"), WebSocketMessageType.Text, endOfMessage : true, CancellationToken.None);
                     }

@@ -23,8 +23,6 @@ namespace WebWist
             GameProcess gp = GameProcess.Instance;
             gp.InitializeGame(2, 5);
 
-            gp.GetSerializePlayer(0);
-
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
