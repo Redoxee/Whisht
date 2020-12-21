@@ -9,6 +9,8 @@ namespace WebWist
 {
     public class ConnectedClient
     {
+        System.Collections.Generic.List<byte> workingByteList = new System.Collections.Generic.List<byte>();
+
         public ConnectedClient(int socketId, WebSocket socket, TaskCompletionSource<object> taskCompletion)
         {
             SocketId = socketId;
@@ -39,8 +41,12 @@ namespace WebWist
 
                         Console.WriteLine($"Socket {SocketId}: Sending from queue.");
                         string gameState = gameProcess.GetGameManager().GetDebugString();
-                        var msgbuf = new ArraySegment<byte>(Encoding.UTF8.GetBytes(gameState));
-                        await Socket.SendAsync(msgbuf, WebSocketMessageType.Text, endOfMessage: true, CancellationToken.None);
+
+                        this.workingByteList.Clear();
+                        await Socket.SendAsync(new byte[]{ (byte)Serialization.MessageID.SandboxState}, WebSocketMessageType.Binary, endOfMessage: false, CancellationToken.None);
+                        byte[] sandboxBytes = gameProcess.GetSerializePlayer(0);
+                        await Socket.SendAsync(sandboxBytes, WebSocketMessageType.Binary, endOfMessage: true, CancellationToken.None);
+                        // await Socket.SendAsync(Encoding.UTF8.GetBytes("Test message"), WebSocketMessageType.Text, endOfMessage : true, CancellationToken.None);
                     }
                 }
                 catch (OperationCanceledException)

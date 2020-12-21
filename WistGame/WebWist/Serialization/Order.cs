@@ -19,7 +19,7 @@ public struct Order : IFlatbufferObject
   public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
   public Order __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public Serialization.MessageID MessageID { get { int o = __p.__offset(4); return o != 0 ? (Serialization.MessageID)__p.bb.GetSbyte(o + __p.bb_pos) : Serialization.MessageID.None; } }
+  public Serialization.MessageID MessageID { get { int o = __p.__offset(4); return o != 0 ? (Serialization.MessageID)__p.bb.Get(o + __p.bb_pos) : Serialization.MessageID.None; } }
   public sbyte PlayerID { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetSbyte(o + __p.bb_pos) : (sbyte)0; } }
   public int OrderValue1 { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)-1; } }
   public int OrderValue2 { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)-1; } }
@@ -38,7 +38,7 @@ public struct Order : IFlatbufferObject
   }
 
   public static void StartOrder(FlatBufferBuilder builder) { builder.StartTable(4); }
-  public static void AddMessageID(FlatBufferBuilder builder, Serialization.MessageID MessageID) { builder.AddSbyte(0, (sbyte)MessageID, 0); }
+  public static void AddMessageID(FlatBufferBuilder builder, Serialization.MessageID MessageID) { builder.AddByte(0, (byte)MessageID, 0); }
   public static void AddPlayerID(FlatBufferBuilder builder, sbyte PlayerID) { builder.AddSbyte(1, PlayerID, 0); }
   public static void AddOrderValue1(FlatBufferBuilder builder, int OrderValue1) { builder.AddInt(2, OrderValue1, -1); }
   public static void AddOrderValue2(FlatBufferBuilder builder, int OrderValue2) { builder.AddInt(3, OrderValue2, -1); }

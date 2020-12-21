@@ -49,6 +49,22 @@ $INSERT_SERIALIZATION
         output.insertAdjacentHTML("afterbegin", "<p>" + message + "</p>");
     }
 
+    function recieveWebSocketMessage(e)
+    {
+        if (e.readyState != 1)
+        {
+            writeToScreen("Message recieved but event is not oppen : " + e.readyState);
+            return;
+        }
+
+        if (e.type != "blob")
+        {
+            writeToScreen("Message recieved but event type is not blob : " + e.type);
+        }
+
+
+    }
+
     function createWebSocket() {
         console.log(gameWebSocketUrl);
         websocket = new WebSocket(gameWebSocketUrl);
@@ -69,9 +85,7 @@ $INSERT_SERIALIZATION
             writeToScreen("DISCONNECTED");
         };
 
-        websocket.onmessage = function (e) {
-            writeToScreen("<span>RESPONSE: " + e.data + "</span>");
-        };
+        websocket.onmessage = recieveWebSocketMessage;
 
         websocket.onerror = function (e) {
             writeToScreen("<span class=error>ERROR:</span> " + e.data);

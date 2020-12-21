@@ -1,6 +1,6 @@
 namespace Serialization;
 
-enum MessageID : byte
+enum MessageID : ubyte
 {
     None,
     SandboxState,

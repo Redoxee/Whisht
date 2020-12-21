@@ -5,7 +5,7 @@
 namespace Serialization
 {
 
-public enum MessageID : sbyte
+public enum MessageID : byte
 {
   None = 0,
   SandboxState = 1,
