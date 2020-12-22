@@ -9,6 +9,8 @@ namespace WebWist
 {
     public class ConnectedClient
     {
+        public int PlayerIndex = -1;
+
         System.Collections.Generic.List<byte> workingByteList = new System.Collections.Generic.List<byte>();
 
         public ConnectedClient(int socketId, WebSocket socket, TaskCompletionSource<object> taskCompletion)
@@ -24,7 +26,7 @@ namespace WebWist
 
         public TaskCompletionSource<object> TaskCompletion { get; private set; }
 
-        public BlockingCollection<byte[]> MessageQueue { get; } = new BlockingCollection<byte[]>();
+        public BlockingCollection<string> MessageQueue { get; } = new BlockingCollection<string>();
 
         public CancellationTokenSource BroadcastLoopTokenSource { get; set; } = new CancellationTokenSource();
 
@@ -35,7 +37,7 @@ namespace WebWist
             {
                 try
                 {
-                    if (!cancellationToken.IsCancellationRequested && Socket.State == WebSocketState.Open && MessageQueue.TryTake(out byte[] message))
+                    if (!cancellationToken.IsCancellationRequested && Socket.State == WebSocketState.Open && MessageQueue.TryTake(out string message))
                     {
                         GameProcess gameProcess = GameProcess.Instance;
 
@@ -43,8 +45,10 @@ namespace WebWist
                         string gameState = gameProcess.GetGameManager().GetDebugString();
 
                         this.workingByteList.Clear();
-                        byte[] sandboxBytes = Encoding.UTF8.GetBytes(gameProcess.GetGameManager().GetDebugString());
-                        await Socket.SendAsync(sandboxBytes, WebSocketMessageType.Binary, endOfMessage: true, CancellationToken.None);
+
+                        Console.WriteLine($"Sending : {message}");
+                        byte[] sandboxBytes = Encoding.UTF8.GetBytes(message);
+                        await Socket.SendAsync(sandboxBytes, WebSocketMessageType.Text, endOfMessage: true, CancellationToken.None);
                         // await Socket.SendAsync(Encoding.UTF8.GetBytes("Test message"), WebSocketMessageType.Text, endOfMessage : true, CancellationToken.None);
                     }
                 }

@@ -49,20 +49,18 @@ $INSERT_SERIALIZATION
         output.insertAdjacentHTML("afterbegin", "<p>" + message + "</p>");
     }
 
-    function recieveWebSocketMessage(e)
-    {
-        if (e.readyState != 1)
+    function recieveWebSocketMessage(e) {
+        var messageData = null;
+        writeToScreen("Recieving message " + e.data);
+        try {
+            messageData = JSON.parse(e.data);
+        }
+        catch (error)
         {
-            writeToScreen("Message recieved but event is not oppen : " + e.readyState);
-            return;
+            writeToScreen("error while parsing json" + error.message);
         }
 
-        if (e.type != "blob")
-        {
-            writeToScreen("Message recieved but event type is not blob : " + e.type);
-        }
-
-
+        writeToScreen(messageData.StateID);
     }
 
     function createWebSocket() {
@@ -78,7 +76,6 @@ $INSERT_SERIALIZATION
 
             isConnected = true;
             writeToScreen("CONNECTED");
-            doSend("WebSocket rocks");
         };
 
         websocket.onclose = function (e) {

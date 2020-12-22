@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace WebWist
+{
+    public class JSONOrder
+    {
+        public string OrderType = null;
+        public int PlayerIndex = -1;
+        public bool[] AvailablePlayerIndexes = null;
+    }
+}

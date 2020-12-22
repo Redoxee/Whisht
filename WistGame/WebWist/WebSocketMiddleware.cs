@@ -90,9 +90,9 @@ namespace WebWist
             }
         }
 
-        public static void Broadcast(byte[] message)
+        public static void Broadcast(string message)
         {
-            Console.WriteLine($"Broadcasting a message of length : {message.Length}");
+            Console.WriteLine($"Broadcasting a message : {message}");
             foreach (var kvp in Clients)
             {
                 kvp.Value.MessageQueue.Add(message);
@@ -168,7 +168,7 @@ namespace WebWist
                 var buffer = WebSocket.CreateServerBuffer(4096);
                 while (socket.State != WebSocketState.Closed && socket.State != WebSocketState.Aborted && !loopToken.IsCancellationRequested)
                 {
-                    var receiveResult = await client.Socket.ReceiveAsync(buffer, loopToken);
+                    WebSocketReceiveResult receiveResult = await client.Socket.ReceiveAsync(buffer, loopToken);
                     // if the token is cancelled while ReceiveAsync is blocking, the socket state changes to aborted and it can't be used
                     if (!loopToken.IsCancellationRequested)
                     {
@@ -185,8 +185,13 @@ namespace WebWist
                         if (client.Socket.State == WebSocketState.Open)
                         {
                             Console.WriteLine($"Socket {client.SocketId}: Received {receiveResult.MessageType} frame ({receiveResult.Count} bytes).");
-                            Console.WriteLine($"Socket {client.SocketId}: Echoing data to queue.");
-                            client.MessageQueue.Add(Encoding.UTF8.GetBytes("Test"));
+                            if (receiveResult.MessageType != WebSocketMessageType.Text)
+                            {
+                                continue;
+                            }
+
+                            string stringResult = Encoding.UTF8.GetString(buffer);
+                            GameProcess.Instance.HandleMessage(client, stringResult);
                         }
                     }
                 }
