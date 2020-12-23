@@ -8,7 +8,7 @@ namespace WebWist
     [System.Serializable]
     public class PlayerView : JSONResponse
     {
-        public override string ResponseType => "PlayerView";
+        public override string MessageType => "PlayerView";
 
         public int PlayerIndex;
         public WistGame.Card[] Hand;

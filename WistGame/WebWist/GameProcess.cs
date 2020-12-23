@@ -144,14 +144,14 @@
 
             switch (order.OrderType)
             {
-                case "SelectPlayer":
+                case "SelectPlayerSlot":
                     {
                         if (order.PlayerIndex < 0)
                         {
                             System.Console.WriteLine("Missing PlayerIndex");
                             return;
                         }
-
+                        
                         if (this.TryRegisterClient(client, order.PlayerIndex))
                         {
                             PlayerView playerView = this.GetPlayerView(client.PlayerIndex);
@@ -161,12 +161,15 @@
                         {
                             System.Console.WriteLine($"Couldn't register to player slot {order.PlayerIndex}");
                         }
-                        
+
+                        JSONResponse availableSlots = this.RequestAvailablePlayerSlots();
+                        this.BroadCast(availableSlots);
+
                         break;
                     }
-                case "RequestAvailablePlayerSlots":
+                case "RequestPlayerSlots":
                     {
-                        JSONResponse response = this.RequestAvailablePlayerSlots(client);
+                        JSONResponse response = this.RequestAvailablePlayerSlots();
                         this.SendResponseToClient(response, client);
 
                         break;
@@ -179,7 +182,7 @@
             }
         }
 
-        public JSONResponse RequestAvailablePlayerSlots(ConnectedClient client)
+        public JSONResponse RequestAvailablePlayerSlots()
         {
             AvailablePlayerSlot response = new AvailablePlayerSlot();
             response.AvaialablePlayerSlots = new bool[this.clientByPlayerIndex.Length];
@@ -198,9 +201,20 @@
             Newtonsoft.Json.JsonTextWriter textWriter = new Newtonsoft.Json.JsonTextWriter(stringWriter);
             serializer.Serialize(textWriter, response);
             stringWriter.Close();
-            string messageSent = stringWriter.ToString();
-            System.Console.WriteLine($"Sending message \"{messageSent}\".");
-            client.MessageQueue.Add(messageSent);
+            string message = stringWriter.ToString();
+            System.Console.WriteLine($"Sending message \"{message}\".");
+            client.MessageQueue.Add(message);
+        }
+
+        public void BroadCast(JSONResponse response)
+        {
+            Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
+            System.IO.StringWriter stringWriter = new System.IO.StringWriter();
+            Newtonsoft.Json.JsonTextWriter textWriter = new Newtonsoft.Json.JsonTextWriter(stringWriter);
+            serializer.Serialize(textWriter, response);
+            stringWriter.Close();
+            string message = stringWriter.ToString();
+            WebSocketMiddleware.Broadcast(message);
         }
     }
 }

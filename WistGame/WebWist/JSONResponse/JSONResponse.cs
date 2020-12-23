@@ -7,6 +7,6 @@ namespace WebWist
 {
     public abstract class JSONResponse
     {
-        public abstract string ResponseType { get; }
+        public abstract string MessageType { get; }
     }
 }

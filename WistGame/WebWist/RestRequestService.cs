@@ -9,8 +9,6 @@ namespace WebWist
 {
     public class RestRequestService
     {
-        private const string InsertSerializationSymole = "$INSERT_SERIALIZATION";
-
         public static string HandleRestRequest(HttpContext context)
         {
             return GetIndexPage();
@@ -22,7 +20,7 @@ namespace WebWist
             string indexFile = resourceManager.GetString("GameIndex");
 
             string insert = string.Empty;
-            string response = indexFile.Replace(RestRequestService.InsertSerializationSymole, insert);
+            string response = indexFile;
 
             return response;
         }

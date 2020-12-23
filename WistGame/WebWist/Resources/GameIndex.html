@@ -6,27 +6,30 @@
 
     #output {
         overflow: auto;
+        float: right;
+        border: 1pt;
+        border-color: black;
+        border-style: solid;
+        min-width: 300pt;
     }
 
-        #output > p {
-            overflow-wrap: break-word;
-        }
+    #output > p {
+        overflow-wrap: break-word;
+    }
 
-        #output span {
-            color: blue;
-        }
+    #output span {
+        color: blue;
+    }
 
-            #output span.error {
-                color: red;
-            }
+    #output span.error {
+        color: red;
+    }
 </style>
-<h2>WebSocket Test</h2>
-<textarea cols=60 rows=6></textarea>
+<h2>Whist</h2>
+<div id=playArea></div>
+<textarea cols=60 rows=1></textarea>
 <button>Connect</button>
 <div id=output></div>
-<script>
-$INSERT_SERIALIZATION
-</script>
 <script>
     var button = document.querySelector("button"),
         output = document.querySelector("#output"),
@@ -34,8 +37,12 @@ $INSERT_SERIALIZATION
         // wsUri = "ws://echo.websocket.org/",
         websocket = null,
         isConnected = false;
+    var playArea = document.querySelector("#playArea");
     var gameWebSocketUrl = document.URL.replace("http://", "ws://");
 
+    var playerIndex = -1;
+    var currentState = "None";
+    var availableSlots = [];
     writeToScreen("WS URI " + gameWebSocketUrl);
 
     createWebSocket();
@@ -61,6 +68,11 @@ $INSERT_SERIALIZATION
         }
 
         writeToScreen(messageData.StateID);
+
+        if (messageData.MessageType == "AvailablePlayerSlots")
+        {
+            handleAvailablePlayerSlots(messageData);
+        }
     }
 
     function createWebSocket() {
@@ -76,6 +88,8 @@ $INSERT_SERIALIZATION
 
             isConnected = true;
             writeToScreen("CONNECTED");
+            var requestPlayerSlots = '{ "OrderType": "RequestPlayerSlots" }';
+            doSend(requestPlayerSlots);
         };
 
         websocket.onclose = function (e) {
@@ -87,6 +101,57 @@ $INSERT_SERIALIZATION
         websocket.onerror = function (e) {
             writeToScreen("<span class=error>ERROR:</span> " + e.data);
         };
+    }
+
+    function clearPlayArea()
+    {
+        while (playArea.firstChild)
+        {
+            playArea.removeChild(playArea.firstChild)
+        }
+    }
+
+    function handleAvailablePlayerSlots(messageData)
+    {
+        availableSlots = messageData.AvaialablePlayerSlots;
+
+        if (playerIndex < 0)
+        {
+            clearPlayArea();
+            var numberOfSlots = 0;
+            if (availableSlots.length > 0)
+            {
+                var table = document.createElement("table");
+                var tr = document.createElement("tr");
+                table.appendChild(tr);
+                for (var index = 0; index < availableSlots.length; ++index) {
+                    if (availableSlots[index]) {
+                        numberOfSlots++;
+                        var th = document.createElement("th");
+                        var playerSlotButton = document.createElement("button");
+                        th.appendChild(playerSlotButton);
+                        tr.appendChild(th);
+
+                        playerSlotButton.appendChild(document.createTextNode("Player " + (index + 1)));
+                        (function(i) {
+                            playerSlotButton.addEventListener("click", function () {
+                                requestPlayerSlots(i);
+                            })
+                        })(index);
+                    }
+                }
+
+                if (numberOfSlots >= 0) {
+                    playArea.appendChild(table);
+                }
+            }
+
+            if (numberOfSlots <= 0)
+            {
+                var p = document.createElement("p").appendChild(document.createElement("No more slots available"));
+                playArea.appendChild(p);
+            }
+        }
     }
 
     function onClickButton() {
@@ -102,4 +167,20 @@ $INSERT_SERIALIZATION
             createWebSocket();
         }
     }
+
+    function requestPlayerSlots(requestedIndex) {
+        writeToScreen("Clicked request player index " + requestedIndex);
+        if (playerIndex >= 0) {
+            writeToScreen("Player index is already " + playerIndex);
+            return;
+        }
+
+        if (!availableSlots[requestedIndex]) {
+            return;
+        }
+
+        var requestPlayerIndex = '{"OrderType":"SelectPlayerSlot", "PlayerIndex": ' + requestedIndex + '}';
+        doSend(requestPlayerIndex);
+    }
+
 </script>

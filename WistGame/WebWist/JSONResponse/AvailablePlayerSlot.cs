@@ -7,7 +7,7 @@ namespace WebWist
 {
     public class AvailablePlayerSlot : JSONResponse
     {
-        public override string ResponseType => "AvailablePlayerSlot";
+        public override string MessageType => "AvailablePlayerSlots";
 
         public bool[] AvaialablePlayerSlots = null;
     }
