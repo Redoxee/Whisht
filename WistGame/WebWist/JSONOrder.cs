@@ -8,6 +8,7 @@ namespace WebWist
     public class JSONOrder
     {
         public string OrderType = null;
+        public int OrderID = -1;
         public int PlayerIndex = -1;
         public bool[] AvailablePlayerIndexes = null;
     }

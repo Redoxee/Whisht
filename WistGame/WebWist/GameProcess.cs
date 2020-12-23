@@ -154,6 +154,9 @@
                         
                         if (this.TryRegisterClient(client, order.PlayerIndex))
                         {
+                            OrderAcknowledgement acknowledgement = new OrderAcknowledgement() { OrderID = order.OrderID, FailureFlags = WistGame.Failures.None };
+                            this.SendResponseToClient(acknowledgement, client);
+
                             PlayerView playerView = this.GetPlayerView(client.PlayerIndex);
                             this.SendResponseToClient(playerView, client);
                         }

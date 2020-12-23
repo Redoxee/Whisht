@@ -39,10 +39,17 @@
         isConnected = false;
     var playArea = document.querySelector("#playArea");
     var gameWebSocketUrl = document.URL.replace("http://", "ws://");
-
     var playerIndex = -1;
     var currentState = "None";
     var availableSlots = [];
+    var nextOrderID = 0;
+
+    var pendingOrders = [];
+    var messageHandles = [];
+
+    messageHandles["AvailablePlayerSlots"] = handleAvailablePlayerSlots;
+    messageHandles["OrderAcknowledgement"] = handleOrderAcknowledgement,
+
     writeToScreen("WS URI " + gameWebSocketUrl);
 
     createWebSocket();
@@ -62,16 +69,15 @@
         try {
             messageData = JSON.parse(e.data);
         }
-        catch (error)
-        {
+        catch (error) {
             writeToScreen("error while parsing json" + error.message);
         }
 
-        writeToScreen(messageData.StateID);
-
-        if (messageData.MessageType == "AvailablePlayerSlots")
-        {
-            handleAvailablePlayerSlots(messageData);
+        if (messageData.MessageType in messageHandles) {
+            messageHandles[messageData.MessageType](messageData);
+        }
+        else {
+            writeToScreen("Unkown message type.");
         }
     }
 
@@ -103,11 +109,20 @@
         };
     }
 
-    function clearPlayArea()
-    {
-        while (playArea.firstChild)
-        {
-            playArea.removeChild(playArea.firstChild)
+    function handleOrderAcknowledgement(messageData) {
+        if (pendingOrders[messageData.OrderID] != null) {
+            pendingOrders[messageData.OrderID](messageData);
+            pendingOrders[messageData.OrderID] = null;
+        }else {
+            writeToScreen("No acknowledgment found for order " + messageData.OrderID + ".");
+
+            var pendingOrderKeys = pendingOrders.keys();
+            var keyMessage = "PendingOrder keys :";
+            for (const key of pendingOrderKeys) {
+                keyMessage += " " + key;
+            }
+
+            writeToScreen(keyMessage);
         }
     }
 
@@ -115,12 +130,10 @@
     {
         availableSlots = messageData.AvaialablePlayerSlots;
 
-        if (playerIndex < 0)
-        {
+        if (playerIndex < 0) {
             clearPlayArea();
             var numberOfSlots = 0;
-            if (availableSlots.length > 0)
-            {
+            if (availableSlots.length > 0) {
                 var table = document.createElement("table");
                 var tr = document.createElement("tr");
                 table.appendChild(tr);
@@ -133,7 +146,7 @@
                         tr.appendChild(th);
 
                         playerSlotButton.appendChild(document.createTextNode("Player " + (index + 1)));
-                        (function(i) {
+                        (function (i) {
                             playerSlotButton.addEventListener("click", function () {
                                 requestPlayerSlots(i);
                             })
@@ -146,9 +159,24 @@
                 }
             }
 
-            if (numberOfSlots <= 0)
-            {
-                var p = document.createElement("p").appendChild(document.createElement("No more slots available"));
+            if (numberOfSlots <= 0) {
+                var p = document.createElement("p").appendChild(document.createTextNode("No more slots available"));
+                playArea.appendChild(p);
+            }
+        }
+
+        else {
+            var numberOfAvailableSlots = 0;
+            for (var index = 0; index < availableSlots.length; ++index) {
+                if (availableSlots[index]) {
+                    numberOfAvailableSlots++;
+                }
+            }
+
+            if (numberOfAvailableSlots > 0) {
+                clearPlayArea();
+
+                var p = document.createElement("p").appendChild(document.createTextNode("Waiting for " + numberOfAvailableSlots + " players."));
                 playArea.appendChild(p);
             }
         }
@@ -169,9 +197,7 @@
     }
 
     function requestPlayerSlots(requestedIndex) {
-        writeToScreen("Clicked request player index " + requestedIndex);
         if (playerIndex >= 0) {
-            writeToScreen("Player index is already " + playerIndex);
             return;
         }
 
@@ -179,8 +205,23 @@
             return;
         }
 
-        var requestPlayerIndex = '{"OrderType":"SelectPlayerSlot", "PlayerIndex": ' + requestedIndex + '}';
+        var orderID = nextOrderID++;
+        var requestPlayerIndex = '{"OrderType":"SelectPlayerSlot", "PlayerIndex": ' + requestedIndex + ', "OrderID" : ' + orderID + '}';
+        pendingOrders[orderID] = function (responseData) {
+            writeToScreen("Recieved acknowledgment.");
+            if (responseData.FailureFlags == 0) {
+                playerIndex = requestedIndex;
+                writeToScreen("I am player " + requestedIndex);
+            }
+        };
+
         doSend(requestPlayerIndex);
+    }
+
+    function clearPlayArea() {
+        while (playArea.firstChild) {
+            playArea.removeChild(playArea.firstChild)
+        }
     }
 
 </script>
