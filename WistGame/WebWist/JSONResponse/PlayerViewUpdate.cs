@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 namespace WebWist
 {
     [System.Serializable]
-    public class PlayerView : JSONResponse
+    public class PlayerViewUpdate : JSONResponse
     {
-        public override string MessageType => "PlayerView";
+        public override string MessageType => "PlayerViewUpdate";
 
         public int PlayerIndex;
         public WistGame.Card[] Hand;

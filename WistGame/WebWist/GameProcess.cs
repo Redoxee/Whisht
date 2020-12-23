@@ -87,11 +87,11 @@
             return false;
         }
 
-        public PlayerView GetPlayerView(int playerIndex)
+        public PlayerViewUpdate GetPlayerView(int playerIndex)
         {
             WistGame.Sandbox sandbox = this.gameManager.GetSandbox();
             WistGame.Player player = sandbox.Players[playerIndex];
-            PlayerView view = new PlayerView();
+            PlayerViewUpdate view = new PlayerViewUpdate();
             view.PlayerIndex = playerIndex;
             view.Hand = player.Hand.ToArray();
             view.Bet = player.Bet;
@@ -109,7 +109,7 @@
             System.IO.StringWriter stringWriter = new System.IO.StringWriter();
             Newtonsoft.Json.JsonTextWriter textWriter = new Newtonsoft.Json.JsonTextWriter(stringWriter);
 
-            PlayerView playerView = this.GetPlayerView(0);
+            PlayerViewUpdate playerView = this.GetPlayerView(0);
 
             serializer.Serialize(textWriter, playerView);
             stringWriter.Close();
@@ -157,7 +157,7 @@
                             OrderAcknowledgement acknowledgement = new OrderAcknowledgement() { OrderID = order.OrderID, FailureFlags = WistGame.Failures.None };
                             this.SendResponseToClient(acknowledgement, client);
 
-                            PlayerView playerView = this.GetPlayerView(client.PlayerIndex);
+                            PlayerViewUpdate playerView = this.GetPlayerView(client.PlayerIndex);
                             this.SendResponseToClient(playerView, client);
                         }
                         else

@@ -46,9 +46,11 @@
 
     var pendingOrders = [];
     var messageHandles = [];
+    var gameState = null;
 
     messageHandles["AvailablePlayerSlots"] = handleAvailablePlayerSlots;
-    messageHandles["OrderAcknowledgement"] = handleOrderAcknowledgement,
+    messageHandles["OrderAcknowledgement"] = handleOrderAcknowledgement;
+    messageHandles["PlayerViewUpdate"] = handlePlayerViewUpdate;
 
     writeToScreen("WS URI " + gameWebSocketUrl);
 
@@ -85,7 +87,7 @@
         console.log(gameWebSocketUrl);
         websocket = new WebSocket(gameWebSocketUrl);
 
-        button.addEventListener("click", onClickButton);
+        button.addEventListener("click", onClickSend);
 
         websocket.onopen = function (e) {
             if (!isConnected) {
@@ -107,6 +109,20 @@
         websocket.onerror = function (e) {
             writeToScreen("<span class=error>ERROR:</span> " + e.data);
         };
+    }
+
+    function onClickSend() {
+        if (isConnected) {
+
+            var text = textarea.value;
+
+            text && doSend(text);
+            textarea.value = "";
+            textarea.focus();
+        }
+        else {
+            createWebSocket();
+        }
     }
 
     function handleOrderAcknowledgement(messageData) {
@@ -179,20 +195,24 @@
                 var p = document.createElement("p").appendChild(document.createTextNode("Waiting for " + numberOfAvailableSlots + " players."));
                 playArea.appendChild(p);
             }
+            else {
+                if (currentState == "None") {
+                    if (gameState == null) {
+                        currentState = "WaitingForGameState";
+                    }
+                    else {
+                        SetupFromGameState();
+                    }
+                }
+            }
         }
     }
 
-    function onClickButton() {
-        if (isConnected) {
-
-            var text = textarea.value;
-
-            text && doSend(text);
-            textarea.value = "";
-            textarea.focus();
-        }
-        else {
-            createWebSocket();
+    function handlePlayerViewUpdate(messageData)
+    {
+        gameState = messageData;
+        if (currentState == "WaitingForGameState") {
+            SetupFromGameState();
         }
     }
 
