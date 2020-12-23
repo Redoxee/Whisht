@@ -1,4 +1,5 @@
 <!doctype html>
+<meta charset="utf-8">
 <style>
     textarea {
         vertical-align: bottom;
@@ -31,16 +32,58 @@
 <button>Connect</button>
 <div id=output></div>
 <script>
-    var button = document.querySelector("button"),
-        output = document.querySelector("#output"),
-        textarea = document.querySelector("textarea"),
-        // wsUri = "ws://echo.websocket.org/",
-        websocket = null,
-        isConnected = false;
-    var playArea = document.querySelector("#playArea");
+    const GameStateID = [
+        "Initialize",
+        "Betting",
+        "Fold",
+        "EndGame",
+        "Unkown"];
+
+    const SigilLabel = [
+        "Spade",
+        "Club",
+        "Heart",
+        "Diamond"];
+
+    const SigilSymbol = [
+        '\u2660',
+        '\u2663',
+        '\u2661',
+        '\u2662'];
+
+    const ValueLabel = [
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "Jack",
+        "Queen",
+        "King",
+        "Ace",
+    ];
+
+    var websocket = null;
+    var isConnected = false;
     var gameWebSocketUrl = document.URL.replace("http://", "ws://");
-    var playerIndex = -1;
+
+    var button = document.querySelector("button");
+    var output = document.querySelector("#output");
+    var textarea = document.querySelector("textarea");
+
+    var playerHandNode = document.createElement("table");
+    var playArea = document.querySelector("#playArea");
+
+    var playerLabelNode = document.createElement("p");
+    var playerLabelText = document.createTextNode("Player ?");
+    playerLabelNode.appendChild(playerLabelText);
+
     var currentState = "None";
+    var playerIndex = -1;
     var availableSlots = [];
     var nextOrderID = 0;
 
@@ -55,6 +98,7 @@
     writeToScreen("WS URI " + gameWebSocketUrl);
 
     createWebSocket();
+
 
     function doSend(message) {
         writeToScreen("SENT: " + message);
@@ -211,8 +255,35 @@
     function handlePlayerViewUpdate(messageData)
     {
         gameState = messageData;
+
+        if (GameStateID[gameState.GameStateID] != null) {
+            gameState.GameStateID = GameStateID[gameState.GameStateID];
+        }
+
         if (currentState == "WaitingForGameState") {
             SetupFromGameState();
+        }
+    }
+
+    function SetupFromGameState() {
+        clearPlayArea();
+
+        playArea.appendChild(playerLabelNode);
+
+        if (gameState.GameStateID == "Betting" || gameState.GameStateID == "Fold") {
+            buildPlayerHand();
+            playArea.appendChild(playerHandNode);
+        }
+    }
+
+    function buildPlayerHand() {
+        clearChilds(playerHandNode);
+        for (var index = 0; index < gameState.Hand.length; ++index) {
+            var card = gameState.Hand[index];
+            var column = document.createElement("th");
+            var tn = document.createTextNode(ValueLabel[card.Value] + " of " + SigilSymbol[card.Sigil]);
+            column.appendChild(tn);
+            playerHandNode.appendChild(column);
         }
     }
 
@@ -228,14 +299,19 @@
         var orderID = nextOrderID++;
         var requestPlayerIndex = '{"OrderType":"SelectPlayerSlot", "PlayerIndex": ' + requestedIndex + ', "OrderID" : ' + orderID + '}';
         pendingOrders[orderID] = function (responseData) {
-            writeToScreen("Recieved acknowledgment.");
             if (responseData.FailureFlags == 0) {
                 playerIndex = requestedIndex;
-                writeToScreen("I am player " + requestedIndex);
+                playerLabelText.nodeValue = "Player " + (requestedIndex + 1);
             }
         };
 
         doSend(requestPlayerIndex);
+    }
+
+    function clearChilds(node) {
+        while (node.firstChild) {
+            node.removeChild(node.firstChild);
+        }
     }
 
     function clearPlayArea() {

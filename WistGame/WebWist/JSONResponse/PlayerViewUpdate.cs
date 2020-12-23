@@ -15,6 +15,6 @@ namespace WebWist
         public int Bet;
         public int PlayedCard;
         public int Score;
-        public WistGame.StateID StateID;
+        public WistGame.GameStateID GameStateID;
     }
 }

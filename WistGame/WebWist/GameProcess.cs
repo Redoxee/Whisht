@@ -96,7 +96,7 @@
             view.Hand = player.Hand.ToArray();
             view.Bet = player.Bet;
             view.Score = player.Score;
-            view.StateID = this.gameManager.GetStateID();
+            view.GameStateID = this.gameManager.GetStateID();
 
             return view;
         }

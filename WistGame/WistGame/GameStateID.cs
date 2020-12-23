@@ -4,7 +4,7 @@ using System.Text;
 
 namespace WistGame
 {
-    public enum StateID : short
+    public enum GameStateID : short
     {
         Initialize,
         Betting,

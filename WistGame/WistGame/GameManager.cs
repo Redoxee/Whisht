@@ -47,7 +47,7 @@ namespace WistGame
             return this.stateMachine.ProcessOrder(order);
         }
 
-        public StateID GetStateID()
+        public GameStateID GetStateID()
         {
             return this.stateMachine.GetStateID();
         }
