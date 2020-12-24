@@ -12,6 +12,7 @@ namespace WebWist
 
         public int PlayerIndex;
         public WistGame.Card[] Hand;
+        public WistGame.Failures[] BetFailures;
         public int Bet;
         public int PlayedCard;
         public int Score;

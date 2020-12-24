@@ -52,6 +52,17 @@ namespace WistGame
             return this.stateMachine.GetStateID();
         }
 
+        public Failures[] GetBetFailures(int playerIndex)
+        {
+            if (this.stateMachine.GetStateID() != GameStateID.Betting)
+            {
+                System.Console.WriteLine("Querying bet failures in the wrong state");
+                return null;
+            }
+
+            return this.Sandbox.Players[playerIndex].Failures;
+        }
+
         public string GetDebugString()
         {
             return this.stateMachine.GetDebugString();

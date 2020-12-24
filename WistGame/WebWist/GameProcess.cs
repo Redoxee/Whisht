@@ -98,6 +98,11 @@
             view.Score = player.Score;
             view.GameStateID = this.gameManager.GetStateID();
 
+            if (view.GameStateID == WistGame.GameStateID.Betting)
+            {
+                view.BetFailures = this.gameManager.GetBetFailures(playerIndex);
+            }
+
             return view;
         }
 

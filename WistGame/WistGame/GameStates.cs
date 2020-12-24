@@ -73,7 +73,13 @@
             
             for (int index = 0; index < sandbox.Players.Length; ++index)
             {
-                sandbox.Players[index].Bet = 0;
+                sandbox.Players[index].Bet = -1;
+                int handSize = sandbox.GetHandSizeForTurn(sandbox.CurrentTurn);
+                sandbox.Players[index].Failures = new Failures[handSize + 1];
+                for (int betIndex = 0; betIndex < sandbox.Players[index].Failures.Length; betIndex++)
+                {
+                    sandbox.Players[index].Failures[betIndex] = Failures.None;
+                }
             }
         }
 
@@ -113,6 +119,16 @@
             if (sandbox.CurrentPlayer >= sandbox.Players.Length)
             {
                 stateMachine.SetNextState(new FoldState());
+            }
+
+            if (sandbox.CurrentPlayer == this.lastBettingPlayer)
+            {
+                int forbidenBet = this.GetForbidenBet(stateMachine);
+                if (forbidenBet >= 0 && forbidenBet < sandbox.Players[this.lastBettingPlayer].Failures.Length)
+                {
+                    sandbox.Players[this.lastBettingPlayer].Failures[forbidenBet] = Failures.BetValueForbiden;
+                }
+
             }
 
             return Failures.None;
