@@ -1,10 +1,6 @@
-<!doctype html>
+﻿<!doctype html>
 <meta charset="utf-8">
 <style>
-    textarea {
-        vertical-align: bottom;
-    }
-
     #output {
         overflow: auto;
         float: right;
@@ -28,8 +24,6 @@
 </style>
 <h2>Whist</h2>
 <div id=playArea></div>
-<textarea cols=60 rows=1></textarea>
-<button>Connect</button>
 <div id=output></div>
 <script>
     const GameStateID = [
@@ -71,9 +65,7 @@
     var isConnected = false;
     var gameWebSocketUrl = document.URL.replace("http://", "ws://");
 
-    var button = document.querySelector("button");
     var output = document.querySelector("#output");
-    var textarea = document.querySelector("textarea");
 
     var playerHandNode = document.createElement("table");
     var playArea = document.querySelector("#playArea");
@@ -131,13 +123,7 @@
         console.log(gameWebSocketUrl);
         websocket = new WebSocket(gameWebSocketUrl);
 
-        button.addEventListener("click", onClickSend);
-
         websocket.onopen = function (e) {
-            if (!isConnected) {
-                button.innerHTML = "Send";
-            }
-
             isConnected = true;
             writeToScreen("CONNECTED");
             var requestPlayerSlots = '{ "OrderType": "RequestPlayerSlots" }';
@@ -153,20 +139,6 @@
         websocket.onerror = function (e) {
             writeToScreen("<span class=error>ERROR:</span> " + e.data);
         };
-    }
-
-    function onClickSend() {
-        if (isConnected) {
-
-            var text = textarea.value;
-
-            text && doSend(text);
-            textarea.value = "";
-            textarea.focus();
-        }
-        else {
-            createWebSocket();
-        }
     }
 
     function handleOrderAcknowledgement(messageData) {
