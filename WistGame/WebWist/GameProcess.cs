@@ -182,6 +182,23 @@
 
                         break;
                     }
+
+                case "PlaceBet":
+                    {
+                        int playerIndex = client.PlayerIndex;
+                        int betValue = order.BetValue;
+
+                        WistGame.PlaceBetOrder betOrder = new WistGame.PlaceBetOrder()
+                        {
+                            PlayerIndex = playerIndex,
+                            BetValue = betValue,
+                        };
+
+                        this.gameManager.ProcessOrder(betOrder);
+
+                        break;
+                    }
+
                 default:
                     {
                         System.Console.WriteLine($"Unkown orderType : {order.OrderType}.");

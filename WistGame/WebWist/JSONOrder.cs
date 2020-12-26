@@ -10,6 +10,7 @@ namespace WebWist
         public string OrderType = null;
         public int OrderID = -1;
         public int PlayerIndex = -1;
+        public int BetValue = -1;
         public bool[] AvailablePlayerIndexes = null;
     }
 }

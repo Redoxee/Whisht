@@ -99,7 +99,7 @@
             }
 
             int handSize = sandbox.GetCurrentHandSize();
-            if (betOrder.Bet < 0 || betOrder.Bet > handSize)
+            if (betOrder.BetValue < 0 || betOrder.BetValue > handSize)
             {
                 return Failures.BetOutOfBounds;
             }
@@ -107,13 +107,13 @@
             if (sandbox.CurrentPlayer == this.lastBettingPlayer)
             {
                 int forbidenBet = this.GetForbidenBet(stateMachine);
-                if (betOrder.Bet == forbidenBet)
+                if (betOrder.BetValue == forbidenBet)
                 {
                     return Failures.BetValueForbiden;
                 }
             }
 
-            sandbox.Players[sandbox.CurrentPlayer].Bet = betOrder.Bet;
+            sandbox.Players[sandbox.CurrentPlayer].Bet = betOrder.BetValue;
             sandbox.CurrentPlayer++;
 
             if (sandbox.CurrentPlayer >= sandbox.Players.Length)
@@ -160,7 +160,7 @@
     public class PlaceBetOrder : GameOrder
     {
         public int PlayerIndex;
-        public int Bet;
+        public int BetValue;
     }
 
     internal class FoldState : GameState

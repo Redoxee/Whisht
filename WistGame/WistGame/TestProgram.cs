@@ -64,7 +64,7 @@ namespace WistGame
                 order = new PlaceBetOrder()
                 {
                     PlayerIndex = playerIndex,
-                    Bet = betValue,
+                    BetValue = betValue,
                 };
             }
             else if (stringOrder == "play")

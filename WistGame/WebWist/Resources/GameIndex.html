@@ -70,6 +70,8 @@
     var playerHandNode = document.createElement("table");
     var playArea = document.querySelector("#playArea");
 
+    var playerBettingNode = document.createElement("table");
+
     var playerLabelNode = document.createElement("p");
     var playerLabelText = document.createTextNode("Player ?");
     playerLabelNode.appendChild(playerLabelText);
@@ -245,6 +247,11 @@
         if (gameState.GameStateID == "Betting" || gameState.GameStateID == "Fold") {
             buildPlayerHand();
             playArea.appendChild(playerHandNode);
+
+            if (gameState.GameStateID == "Betting") {
+                buildPlayerBetting();
+                playArea.appendChild(playerBettingNode);
+            }
         }
     }
 
@@ -256,6 +263,29 @@
             var tn = document.createTextNode(ValueLabel[card.Value] + " of " + SigilSymbol[card.Sigil]);
             column.appendChild(tn);
             playerHandNode.appendChild(column);
+        }
+    }
+
+    function buildPlayerBetting() {
+        clearChilds(playerBettingNode);
+
+        var numberOfBets = gameState.BetFailures.length;
+        for (var index = 0; index < numberOfBets; ++index) {
+            var bettingButton = document.createElement("button");
+            var tn = document.createTextNode(index);
+            bettingButton.appendChild(tn);
+            playerBettingNode.appendChild(bettingButton);
+
+            if (gameState.BetFailures[index] != 0) {
+                bettingButton.disabled = true;
+            }
+            else {
+                (function (bet) {
+                    bettingButton.addEventListener("click", function () {
+                        requestBet(bet);
+                    });
+                })(index);
+            }
         }
     }
 
@@ -278,6 +308,17 @@
         };
 
         doSend(requestPlayerIndex);
+    }
+
+    function requestBet(betValue) {
+        var orderID = nextOrderID++;
+        var betOrder = '{"OrderType":"PlaceBet", "BetValue": ' + betValue + ', "OrderID" : ' + orderID + '}';
+        pendingOrders[orderID] = function (responseData) {
+            if (responseData.FailureFlags == 0) {
+            }
+        };
+
+        doSend(betOrder);
     }
 
     function clearChilds(node) {
