@@ -22,6 +22,15 @@
     #output span.error {
         color: red;
     }
+
+    .bet {
+        text-align :center;
+    }
+
+        .bet p {
+            margin : 0pt;
+        }
+
 </style>
 <h2>Whist</h2>
 <div id=playArea></div>
@@ -71,7 +80,10 @@
     var playerHandNode = document.createElement("table");
     var playArea = document.querySelector("#playArea");
 
-    var playerBettingNode = document.createElement("table");
+    var bettingArea = {}
+    bettingArea.BettingTable = document.createElement("table");
+    bettingArea.BettingNode = document.createElement("tr");
+    bettingArea.BettingTable.appendChild(bettingArea.BettingNode);
 
     var playerLabelNode = document.createElement("p");
     var playerLabelText = document.createTextNode("Player ?");
@@ -274,7 +286,7 @@
 
             if (gameState.GameStateID == "Betting") {
                 buildPlayerBetting();
-                playArea.appendChild(playerBettingNode);
+                playArea.appendChild(bettingArea.BettingTable);
             }
         }
     }
@@ -291,21 +303,21 @@
     }
 
     function buildPlayerBetting() {
-        clearChilds(playerBettingNode);
+        clearChilds(bettingArea.BettingNode);
 
         var numberOfBets = gameState.BetFailures.length;
         for (var index = 0; index < numberOfBets; ++index) {
-            var bettingButton = document.createElement("button");
-            var tn = document.createTextNode(index);
-            bettingButton.appendChild(tn);
-            playerBettingNode.appendChild(bettingButton);
+            var betObject = buildBetObject();
+            betObject.MainLabel.textContent = index;
+
+            bettingArea.BettingNode.appendChild(betObject.BetRootNode);
 
             if (gameState.BetFailures[index] != 0) {
-                bettingButton.disabled = true;
+                betObject.Button.disabled = true;
             }
             else {
                 (function (bet) {
-                    bettingButton.addEventListener("click", function () {
+                    betObject.Button.addEventListener("click", function () {
                         requestBet(bet);
                     });
                 })(index);
@@ -313,6 +325,23 @@
         }
     }
 
+    function buildBetObject() {
+        var bet = {};
+        bet.BetRootNode = createElementWithClass("th", "bet");
+        var table = document.createElement("table");
+        bet.BetRootNode.appendChild(table);
+
+        var paragraphe = document.createElement("p");
+        table.appendChild(paragraphe);
+        bet.MainLabel = document.createTextNode("");
+        paragraphe.appendChild(bet.MainLabel);
+
+        bet.Button = document.createElement("button");
+        bet.Button.appendChild(document.createTextNode("bet"));
+        table.appendChild(bet.Button);
+
+        return bet;
+    }
 
     function buildOtherPlayersNode() {
         clearChilds(otherPlayersParent);
@@ -379,5 +408,10 @@
         }
     }
 
+    function createElementWithClass(element, className) {
+        var el = document.createElement(element);
+        el.className = className;
+        return el;
+    }
 
 </script>
