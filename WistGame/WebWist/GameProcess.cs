@@ -106,6 +106,15 @@
                 view.BetFailures = this.gameManager.GetBetFailures(playerIndex);
             }
 
+            view.OtherPlayers = new PlayerViewUpdate.Player[sandbox.NumberOfPlayers];
+            for (int otherIndex = 0; otherIndex < view.OtherPlayers.Length; ++otherIndex)
+            {
+                ref PlayerViewUpdate.Player otherPlayer = ref view.OtherPlayers[otherIndex];
+                otherPlayer.NumberOfCards = sandbox.Players[otherIndex].Hand.Count;
+                otherPlayer.CurrentScore = sandbox.Players[otherIndex].Score;
+                otherPlayer.Bet = sandbox.Players[otherIndex].Bet;
+            }
+
             return view;
         }
 
