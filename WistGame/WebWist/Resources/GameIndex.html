@@ -77,6 +77,9 @@
     var playerLabelText = document.createTextNode("Player ?");
     playerLabelNode.appendChild(playerLabelText);
 
+    var otherPlayersParent = document.createElement("table");
+    var otherPlayerNodes = [];
+
     var currentState = "None";
     var playerIndex = -1;
     var availableSlots = [];
@@ -89,7 +92,7 @@
     messageHandles["AvailablePlayerSlots"] = handleAvailablePlayerSlots;
     messageHandles["OrderAcknowledgement"] = handleOrderAcknowledgement;
     messageHandles["PlayerViewUpdate"] = handlePlayerViewUpdate;
-    messageHandles["GameChanges"] = handleSandboxUpdate;
+    messageHandles["SandboxChanges"] = handleSandboxUpdate;
 
     writeToScreen("WS URI " + gameWebSocketUrl);
 
@@ -266,6 +269,9 @@
             buildPlayerHand();
             playArea.appendChild(playerHandNode);
 
+            buildOtherPlayersNode();
+            playArea.appendChild(otherPlayersParent);
+
             if (gameState.GameStateID == "Betting") {
                 buildPlayerBetting();
                 playArea.appendChild(playerBettingNode);
@@ -304,6 +310,28 @@
                     });
                 })(index);
             }
+        }
+    }
+
+
+    function buildOtherPlayersNode() {
+        clearChilds(otherPlayersParent);
+
+        var numberOfPlayers = gameState.OtherPlayers.length;
+        for (var index = 0; index < numberOfPlayers; ++index) {
+            if (index == playerIndex) {
+                continue;
+            }
+
+            var otherPlayer = gameState.OtherPlayers[index];
+
+            var otherPlayerNode = document.createElement("div");
+            otherPlayerNode.appendChild(document.createTextNode("Player " + (index + 1)));
+            otherPlayerNode.appendChild(document.createTextNode("Current score " + otherPlayer.CurrentScore));
+            otherPlayerNode.appendChild(document.createTextNode("Current bet " + otherPlayer.Bet));
+            otherPlayerNode.appendChild(document.createTextNode("Number of cards " + otherPlayer.NumberOfCards));
+            otherPlayerNodes[index] = otherPlayerNode;
+            otherPlayersParent.appendChild(otherPlayerNode);
         }
     }
 
@@ -350,5 +378,6 @@
             playArea.removeChild(playArea.firstChild)
         }
     }
+
 
 </script>
