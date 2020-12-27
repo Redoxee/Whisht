@@ -10,7 +10,7 @@ namespace WistGame
 
         internal GameStateMachine stateMachine;
 
-        public GameManager(int numberOfPlayers, int numberOfTurns)
+        public GameManager(int numberOfPlayers, int numberOfTurns, GameChangePool gameChanges = null)
         {
             int maxHandSize = numberOfTurns / 2 + 1;
 
@@ -29,7 +29,7 @@ namespace WistGame
 
             this.stateMachine = new GameStateMachine(this);
             GameState firstState = new InitializeGameState();
-            this.stateMachine.SetInitialState(firstState);
+            this.stateMachine.SetInitialState(firstState, gameChanges);
         }
 
         public bool IsGameFinished()
@@ -42,9 +42,9 @@ namespace WistGame
             return this.Sandbox;
         }
 
-        public Failures ProcessOrder(GameOrder order)
+        public Failures ProcessOrder(GameOrder order, GameChangePool gameChanges)
         {
-            return this.stateMachine.ProcessOrder(order);
+            return this.stateMachine.ProcessOrder(order, gameChanges);
         }
 
         public GameStateID GetStateID()

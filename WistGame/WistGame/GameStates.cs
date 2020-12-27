@@ -16,7 +16,7 @@
             stateMachine.SetNextState(new InitializeTurnState());
         }
 
-        public override Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order)
+        public override Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order, GameChangePool gameChanges)
         {
             return Failures.WrongOrder;
         }
@@ -52,7 +52,7 @@
             stateMachine.SetNextState(new BettingState());
         }
 
-        public override Failures ProcessOrder(GameStateMachine context, GameOrder order)
+        public override Failures ProcessOrder(GameStateMachine context, GameOrder order, GameChangePool gameChanges)
         {
             return Failures.WrongOrder;
         }
@@ -83,7 +83,7 @@
             }
         }
 
-        public override Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order)
+        public override Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order, GameChangePool gameChanges)
         {
             PlaceBetOrder betOrder = order as PlaceBetOrder;
             if (betOrder == null)
@@ -115,6 +115,13 @@
 
             sandbox.Players[sandbox.CurrentPlayer].Bet = betOrder.BetValue;
             sandbox.CurrentPlayer++;
+
+            ref GameChange playbetChange = ref gameChanges.AllocateGameChange(GameChange.GameChangeType.PlayerBet);
+            playbetChange.PlayerIndex = betOrder.PlayerIndex;
+            playbetChange.BetValue = betOrder.BetValue;
+
+            ref GameChange nextChange = ref gameChanges.AllocateGameChange(GameChange.GameChangeType.NextPlayer);
+            nextChange.PlayerIndex = sandbox.CurrentPlayer;
 
             if (sandbox.CurrentPlayer >= sandbox.Players.Length)
             {
@@ -191,7 +198,7 @@
             }
         }
 
-        public override Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order)
+        public override Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order, GameChangePool gameChanges)
         {
             PlayCardOrder playCardOrder = order as PlayCardOrder;
             if (playCardOrder == null)
@@ -222,6 +229,7 @@
             
             playedCard.PlayerIndex = player.Index;
             playedCard.Card = player.Hand[playCardOrder.CardIndex];
+            playedCard.IndexInHand = playCardOrder.CardIndex;
             player.Hand.RemoveAt(playCardOrder.CardIndex);
 
             if (sandbox.CurrentPlayer == 0)
@@ -256,6 +264,12 @@
             }
 
             sandbox.CurrentPlayer++;
+
+            ref GameChange gameChange = ref gameChanges.AllocateGameChange(GameChange.GameChangeType.PlayedCard);
+            gameChange.PlayedCard = playedCard;
+
+            ref GameChange nextChange = ref gameChanges.AllocateGameChange(GameChange.GameChangeType.NextPlayer);
+            nextChange.PlayerIndex = sandbox.CurrentPlayer;
 
             if (sandbox.CurrentPlayer == sandbox.Players.Length)
             {
@@ -355,7 +369,7 @@
             stateMachine.SetNextState(new EndGameState());
         }
      
-        public override Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order)
+        public override Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order, GameChangePool gameChanges)
         {
             return Failures.WrongOrder;
         }
@@ -369,7 +383,7 @@
         {
         }
 
-        public override Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order)
+        public override Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order, GameChangePool gameChanges)
         {
             return Failures.WrongOrder;
         }

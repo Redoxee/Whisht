@@ -16,16 +16,16 @@ namespace WistGame
             this.gameManager = manager;
         }
 
-        public Failures ProcessOrder(GameOrder order)
+        public Failures ProcessOrder(GameOrder order, GameChangePool gameChanges)
         {
             Failures failure = Failures.None;
             System.Console.WriteLine($"[GameStateMachine] processing order {(order != null ? order.ToString() : "null")}.");
             if (this.currentState != null)
             {
-                failure |= this.currentState.ProcessOrder(this, order);
+                failure |= this.currentState.ProcessOrder(this, order, gameChanges);
             }
 
-            this.ResolveNextState();
+            this.ResolveNextState(gameChanges);
 
             return failure;
         }
@@ -35,11 +35,11 @@ namespace WistGame
             this.nextGameState = nextState;
         }
 
-        public void SetInitialState(GameState initialState)
+        public void SetInitialState(GameState initialState, GameChangePool gameChanges)
         {
             System.Console.WriteLine($"[GameStateMachine] Initial state {initialState.GetType().Name}.");
             this.nextGameState = initialState;
-            this.ResolveNextState();
+            this.ResolveNextState(gameChanges);
         }
 
         public GameStateID GetStateID()
@@ -62,7 +62,7 @@ namespace WistGame
             return "No current state";
         }
 
-        private void ResolveNextState()
+        private void ResolveNextState(GameChangePool gameChanges)
         {
             int loopCounter = 0;
             const int tooManyLoop = 64;
@@ -73,6 +73,13 @@ namespace WistGame
                 this.nextGameState = null;
                 this.currentState = next;
                 this.currentState.StartState(this);
+
+                if (gameChanges != null)
+                {
+                    ref GameChange gameChange = ref gameChanges.AllocateGameChange();
+                    gameChange.ChangeType = GameChange.GameChangeType.GameStateChange;
+                    gameChange.GameState = this.currentState.StateID;
+                }
 
                 loopCounter++;
             }
@@ -88,7 +95,7 @@ namespace WistGame
     {
         public abstract void StartState(GameStateMachine stateMachine);
 
-        public abstract Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order);
+        public abstract Failures ProcessOrder(GameStateMachine stateMachine, GameOrder order, GameChangePool gameChanges);
 
         public abstract GameStateID StateID
         {

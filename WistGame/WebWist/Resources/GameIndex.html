@@ -8,6 +8,7 @@
         border-color: black;
         border-style: solid;
         min-width: 300pt;
+        max-width : 50%;
     }
 
     #output > p {
@@ -88,6 +89,7 @@
     messageHandles["AvailablePlayerSlots"] = handleAvailablePlayerSlots;
     messageHandles["OrderAcknowledgement"] = handleOrderAcknowledgement;
     messageHandles["PlayerViewUpdate"] = handlePlayerViewUpdate;
+    messageHandles["GameChanges"] = handleSandboxUpdate;
 
     writeToScreen("WS URI " + gameWebSocketUrl);
 
@@ -236,6 +238,22 @@
 
         if (currentState == "WaitingForGameState") {
             SetupFromGameState();
+        }
+    }
+
+    function handleSandboxUpdate(messageData) {
+        for (var changeIndex = 0; messageData.GameChanges.length; ++changeIndex) {
+            var gameChange = messageData.GameChanges[changeIndex];
+            if (gameChange.ChangeType == "GameStateChange") {
+                gameState.GameStateID = gameChange.GameChanges;
+            }
+            else if (gameChange.ChangeType == "PlayerBet") {
+            }
+            else if (gameChange.ChangeType == "PlayedCard") {
+            }
+            else if (gameChange.ChangeType == "NextPlayer") {
+                
+            }
         }
     }
 

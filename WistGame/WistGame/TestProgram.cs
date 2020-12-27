@@ -6,7 +6,8 @@ namespace WistGame
     {
         static void Main(string[] args)
         {
-            GameManager gameManager = new GameManager(numberOfPlayers: 2, numberOfTurns: 3);
+            GameChangePool gameChanges = new GameChangePool();
+            GameManager gameManager = new GameManager(numberOfPlayers: 2, numberOfTurns: 3, gameChanges);
 
             bool quit = false;
             do
@@ -24,7 +25,7 @@ namespace WistGame
                 GameOrder order = TryParseGameOrder(splitted);
                 if (order != null)
                 {
-                    Failures failure = gameManager.ProcessOrder(order);
+                    Failures failure = gameManager.ProcessOrder(order, gameChanges);
                     System.Console.WriteLine(failure.ToString());
                 }
                 

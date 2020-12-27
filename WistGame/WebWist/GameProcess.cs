@@ -9,6 +9,8 @@
 
         ConnectedClient[] clientByPlayerIndex = null;
 
+        WistGame.GameChangePool workingGameChanges;
+
         public static GameProcess Instance
         {
             get
@@ -28,6 +30,7 @@
 
         public void InitializeGame(int numberOfPlayer, int numberOfTurns)
         {
+            this.workingGameChanges = new WistGame.GameChangePool();
             this.gameManager = new WistGame.GameManager(numberOfPlayer, numberOfTurns);
 
             this.clientByPlayerIndex = new ConnectedClient[numberOfPlayer];
@@ -194,7 +197,23 @@
                             BetValue = betValue,
                         };
 
-                        this.gameManager.ProcessOrder(betOrder);
+                        this.workingGameChanges.Clear();
+                        WistGame.Failures failures = this.gameManager.ProcessOrder(betOrder, this.workingGameChanges);
+
+                        OrderAcknowledgement acknowledgement = new OrderAcknowledgement()
+                        {
+                            OrderID = order.OrderID,
+                            FailureFlags = failures,
+                        };
+
+                        this.SendResponseToClient(acknowledgement, client);
+
+                        if (failures == WistGame.Failures.None)
+                        {
+                            SandboxChanges sandboxChanges = new SandboxChanges();
+                            sandboxChanges.GameChanges = this.workingGameChanges.GetGameChanges();
+                            this.BroadCast(sandboxChanges);
+                        }
 
                         break;
                     }
