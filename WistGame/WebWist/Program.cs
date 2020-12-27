@@ -26,7 +26,9 @@ namespace WebWist
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseUrls(new string[] { @"http://localhost:8080/" });
+                    webBuilder.UseUrls(new string[] { 
+                        @"http://*:8080/",
+                    });
                     webBuilder.UseStartup<Startup>();
                 })
                 .Build()
