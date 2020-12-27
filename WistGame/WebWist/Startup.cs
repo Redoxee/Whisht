@@ -28,7 +28,7 @@ namespace WebWist
             app.UseWebSockets(new WebSocketOptions
             {
                 KeepAliveInterval = TimeSpan.FromSeconds(120),
-                ReceiveBufferSize = 4 * 1024
+                ReceiveBufferSize = 64
             });
 
             // add our custom middleware to the pipeline
