@@ -106,7 +106,7 @@
     var otherPlayers = [];
 
     var currentState = "None";
-    var playerIndex = -1;
+    var localPlayerIndex = -1;
     var availableSlots = [];
     var nextOrderID = 0;
 
@@ -194,7 +194,7 @@
     {
         availableSlots = messageData.AvaialablePlayerSlots;
 
-        if (playerIndex < 0) {
+        if (localPlayerIndex < 0) {
             clearPlayArea();
             var numberOfSlots = 0;
             if (availableSlots.length > 0) {
@@ -276,6 +276,12 @@
                 gameState.GameStateID = gameChange.GameChanges;
             }
             else if (gameChange.ChangeType == "PlayerBet") {
+                if (gameChange.PlayerIndex == localPlayerIndex) {
+                }
+                else {
+                    var otherPlayerObject = otherPlayers[gameChange.PlayerIndex];
+                    otherPlayerObject.BetLabel.textContent = "Bet " + gameChange.BetValue;
+                }
             }
             else if (gameChange.ChangeType == "PlayedCard") {
             }
@@ -375,7 +381,7 @@
 
         var numberOfPlayers = gameState.OtherPlayers.length;
         for (var index = 0; index < numberOfPlayers; ++index) {
-            if (index == playerIndex) {
+            if (index == localPlayerIndex) {
                 continue;
             }
 
@@ -406,7 +412,7 @@
     }
 
     function requestPlayerSlots(requestedIndex) {
-        if (playerIndex >= 0) {
+        if (localPlayerIndex >= 0) {
             return;
         }
 
@@ -418,7 +424,7 @@
         var requestPlayerIndex = '{"OrderType":"SelectPlayerSlot", "PlayerIndex": ' + requestedIndex + ', "OrderID" : ' + orderID + '}';
         pendingOrders[orderID] = function (responseData) {
             if (responseData.FailureFlags == 0) {
-                playerIndex = requestedIndex;
+                localPlayerIndex = requestedIndex;
                 playerLabelText.nodeValue = "Player " + (requestedIndex + 1);
             }
         };
