@@ -8,7 +8,7 @@
         border-color: black;
         border-style: solid;
         min-width: 300pt;
-        max-width : 50%;
+        max-width: 50%;
     }
 
     #output > p {
@@ -24,12 +24,25 @@
     }
 
     .bet {
-        text-align :center;
+        text-align : center;
     }
 
         .bet p {
-            margin : 0pt;
+            margin: 0pt;
         }
+
+    .card {
+        border : 1pt;
+        border-style : solid;
+        border-color : darkgray;
+    }
+
+    .otherPlayer {
+        border: 1pt;
+        border-style: solid;
+        border-color: black;
+    }
+
 
 </style>
 <h2>Whist</h2>
@@ -77,20 +90,20 @@
 
     var output = document.querySelector("#output");
 
-    var playerHandNode = document.createElement("table");
     var playArea = document.querySelector("#playArea");
 
+    var playerHand = {};
     var bettingArea = {}
-    bettingArea.BettingTable = document.createElement("table");
+    bettingArea.RootNode = document.createElement("table");
     bettingArea.BettingNode = document.createElement("tr");
-    bettingArea.BettingTable.appendChild(bettingArea.BettingNode);
+    bettingArea.RootNode.appendChild(bettingArea.BettingNode);
 
     var playerLabelNode = document.createElement("p");
     var playerLabelText = document.createTextNode("Player ?");
     playerLabelNode.appendChild(playerLabelText);
 
     var otherPlayersParent = document.createElement("table");
-    var otherPlayerNodes = [];
+    var otherPlayers = [];
 
     var currentState = "None";
     var playerIndex = -1;
@@ -275,42 +288,56 @@
     function SetupFromGameState() {
         clearPlayArea();
 
-        playArea.appendChild(playerLabelNode);
 
         if (gameState.GameStateID == "Betting" || gameState.GameStateID == "Fold") {
-            buildPlayerHand();
-            playArea.appendChild(playerHandNode);
-
             buildOtherPlayersNode();
             playArea.appendChild(otherPlayersParent);
 
+            playArea.appendChild(playerLabelNode);
+            buildPlayerHand();
+            playArea.appendChild(playerHand.RootNode);
+
+
             if (gameState.GameStateID == "Betting") {
                 buildPlayerBetting();
-                playArea.appendChild(bettingArea.BettingTable);
+                playArea.appendChild(bettingArea.RootNode);
             }
         }
     }
 
     function buildPlayerHand() {
-        clearChilds(playerHandNode);
+
+        playerHand.RootNode = createElementWithClass("table", "playerHand");
+        playerHand.Cards = [];
+
         for (var index = 0; index < gameState.Hand.length; ++index) {
-            var card = gameState.Hand[index];
+            var cardData = gameState.Hand[index];
             var column = document.createElement("th");
-            var tn = document.createTextNode(ValueLabel[card.Value] + " of " + SigilSymbol[card.Sigil]);
-            column.appendChild(tn);
-            playerHandNode.appendChild(column);
+            var cardObject = buildCard(cardData);
+            column.appendChild(cardObject.RootNode);
+            playerHand.RootNode.appendChild(column);
+            playerHand.Cards[index] = cardObject;
         }
     }
 
+    function buildCard(cardData) {
+        var cardObject = {};
+        cardObject.RootNode = createElementWithClass("div", "card");
+        cardObject.CardLabel = document.createTextNode(ValueLabel[cardData.Value] + " of " + SigilSymbol[cardData.Sigil]);
+        cardObject.RootNode.appendChild(cardObject.CardLabel);
+
+        return cardObject;
+    }
+
     function buildPlayerBetting() {
-        clearChilds(bettingArea.BettingNode);
+        clearChilds(bettingArea.RootNode);
 
         var numberOfBets = gameState.BetFailures.length;
         for (var index = 0; index < numberOfBets; ++index) {
             var betObject = buildBetObject();
             betObject.MainLabel.textContent = index;
 
-            bettingArea.BettingNode.appendChild(betObject.BetRootNode);
+            bettingArea.RootNode.appendChild(betObject.BetRootNode);
 
             if (gameState.BetFailures[index] != 0) {
                 betObject.Button.disabled = true;
@@ -352,15 +379,29 @@
                 continue;
             }
 
-            var otherPlayer = gameState.OtherPlayers[index];
+            var otherPlayerObject = {};
+            var otherPlayerData = gameState.OtherPlayers[index];
 
-            var otherPlayerNode = document.createElement("div");
-            otherPlayerNode.appendChild(document.createTextNode("Player " + (index + 1)));
-            otherPlayerNode.appendChild(document.createTextNode("Current score " + otherPlayer.CurrentScore));
-            otherPlayerNode.appendChild(document.createTextNode("Current bet " + otherPlayer.Bet));
-            otherPlayerNode.appendChild(document.createTextNode("Number of cards " + otherPlayer.NumberOfCards));
-            otherPlayerNodes[index] = otherPlayerNode;
-            otherPlayersParent.appendChild(otherPlayerNode);
+            otherPlayerObject.PlayerLabel = document.createTextNode("Player " + (index + 1));
+            otherPlayerObject.ScoreLabel = document.createTextNode("Current score " + otherPlayerData.CurrentScore);
+            otherPlayerObject.BetLabel = document.createTextNode("Current bet " + otherPlayerData.Bet);
+            otherPlayerObject.NumberOfCardsLabel = document.createTextNode("Number of cards " + otherPlayerData.NumberOfCards);
+
+            otherPlayerObject.RootNode = createElementWithClass("table", "otherPlayer");
+            var row = document.createElement("tr");
+            row.appendChild(otherPlayerObject.PlayerLabel);
+            otherPlayerObject.RootNode.appendChild(row);
+            row = document.createElement("tr");
+            row.appendChild(otherPlayerObject.ScoreLabel);
+            otherPlayerObject.RootNode.appendChild(row);
+            row = document.createElement("tr");
+            row.appendChild(otherPlayerObject.BetLabel);
+            otherPlayerObject.RootNode.appendChild(row);
+            row = document.createElement("tr");
+            row.appendChild(otherPlayerObject.NumberOfCardsLabel);
+            otherPlayerObject.RootNode.appendChild(row);
+            otherPlayers[index] = otherPlayerObject;
+            otherPlayersParent.appendChild(otherPlayerObject.RootNode);
         }
     }
 
