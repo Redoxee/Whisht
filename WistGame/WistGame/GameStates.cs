@@ -114,28 +114,30 @@
             }
 
             sandbox.Players[sandbox.CurrentPlayer].Bet = betOrder.BetValue;
-            sandbox.CurrentPlayer++;
 
             ref GameChange playbetChange = ref gameChanges.AllocateGameChange(GameChange.GameChangeType.PlayerBet);
             playbetChange.PlayerIndex = betOrder.PlayerIndex;
             playbetChange.BetValue = betOrder.BetValue;
 
-            ref GameChange nextChange = ref gameChanges.AllocateGameChange(GameChange.GameChangeType.NextPlayer);
-            nextChange.PlayerIndex = sandbox.CurrentPlayer;
-
-            if (sandbox.CurrentPlayer >= sandbox.Players.Length)
+            if (sandbox.CurrentPlayer != this.lastBettingPlayer)
             {
-                stateMachine.SetNextState(new FoldState());
-            }
+                sandbox.CurrentPlayer++;
 
-            if (sandbox.CurrentPlayer == this.lastBettingPlayer)
-            {
-                int forbidenBet = this.GetForbidenBet(stateMachine);
-                if (forbidenBet >= 0 && forbidenBet < sandbox.Players[this.lastBettingPlayer].Failures.Length)
+                if (sandbox.CurrentPlayer == this.lastBettingPlayer)
                 {
-                    sandbox.Players[this.lastBettingPlayer].Failures[forbidenBet] = Failures.BetValueForbiden;
+                    int forbidenBet = this.GetForbidenBet(stateMachine);
+                    if (forbidenBet >= 0 && forbidenBet < sandbox.Players[this.lastBettingPlayer].Failures.Length)
+                    {
+                        sandbox.Players[this.lastBettingPlayer].Failures[forbidenBet] = Failures.BetValueForbiden;
+                    }
                 }
 
+                ref GameChange nextChange = ref gameChanges.AllocateGameChange(GameChange.GameChangeType.NextPlayer);
+                nextChange.PlayerIndex = sandbox.CurrentPlayer;
+            }
+            else
+            { 
+                stateMachine.SetNextState(new FoldState());
             }
 
             return Failures.None;
@@ -172,6 +174,8 @@
 
     internal class FoldState : GameState
     {
+        private int lastPlayingPlayer = -1;
+
         public override GameStateID StateID => GameStateID.Fold;
 
         public override void StartState(GameStateMachine stateMachine)
@@ -179,6 +183,8 @@
             Sandbox sandbox = stateMachine.gameManager.Sandbox;
             sandbox.CurrentPlayer = 0;
             sandbox.FirstFoldPlayer = sandbox.CurrentPlayer;
+
+            this.lastPlayingPlayer = sandbox.Players.Length - 1;
 
             sandbox.PlayedCards = new PlayedCard[sandbox.Players.Length];
 
@@ -263,15 +269,17 @@
                 }
             }
 
-            sandbox.CurrentPlayer++;
-
             ref GameChange gameChange = ref gameChanges.AllocateGameChange(GameChange.GameChangeType.PlayedCard);
             gameChange.PlayedCard = playedCard;
 
-            ref GameChange nextChange = ref gameChanges.AllocateGameChange(GameChange.GameChangeType.NextPlayer);
-            nextChange.PlayerIndex = sandbox.CurrentPlayer;
+            if (sandbox.CurrentPlayer != this.lastPlayingPlayer)
+            {
+                sandbox.CurrentPlayer++;
 
-            if (sandbox.CurrentPlayer == sandbox.Players.Length)
+                ref GameChange nextChange = ref gameChanges.AllocateGameChange(GameChange.GameChangeType.NextPlayer);
+                nextChange.PlayerIndex = sandbox.CurrentPlayer;
+            }
+            else
             {
                 stateMachine.SetNextState(new ResolveFoldState());
             }
