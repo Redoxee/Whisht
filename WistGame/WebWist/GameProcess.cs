@@ -100,6 +100,7 @@
             view.Bet = player.Bet;
             view.Score = player.Score;
             view.GameStateID = this.gameManager.GetStateID();
+            view.CurrentPlayer = sandbox.CurrentPlayer;
 
             if (view.GameStateID == WistGame.GameStateID.Betting)
             {

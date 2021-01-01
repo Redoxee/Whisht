@@ -91,7 +91,7 @@
     var output = document.querySelector("#output");
 
     var playArea = document.querySelector("#playArea");
-
+    var currentPlayerObject = {};
     var playerObject = {};
 
     var otherPlayersParent = document.createElement("table");
@@ -266,6 +266,8 @@
             var gameChange = messageData.GameChanges[changeIndex];
             if (gameChange.ChangeType == "GameStateChange") {
                 gameState.GameStateID = gameChange.GameChanges;
+
+                currentPlayerObject.Label.textContent = currentPlayerObject.Message + gameChange.PlayerIndex;
             }
             else if (gameChange.ChangeType == "PlayerBet") {
                 if (gameChange.PlayerIndex == localPlayerIndex) {
@@ -278,7 +280,7 @@
             else if (gameChange.ChangeType == "PlayedCard") {
             }
             else if (gameChange.ChangeType == "NextPlayer") {
-                
+                currentPlayerObject.Label.textContent = currentPlayerObject.Message + gameChange.PlayerIndex;
             }
         }
     }
@@ -286,8 +288,10 @@
     function SetupFromGameState() {
         clearPlayArea();
 
-
         if (gameState.GameStateID == "Betting" || gameState.GameStateID == "Fold") {
+            var currentPlayer = buildCurrentPlayer();
+            playArea.appendChild(currentPlayer.RootNode);
+
             buildOtherPlayersNode();
             playArea.appendChild(otherPlayersParent);
 
@@ -298,6 +302,16 @@
                 playArea.appendChild(playerObject.PlayerBets.RootNode);
             }
         }
+    }
+
+    function buildCurrentPlayer()
+    {
+        currentPlayerObject.RootNode = document.createElement("p");
+        currentPlayerObject.Message = "Current player : ";
+        currentPlayerObject.Label = document.createTextNode(currentPlayerObject.Message + gameState.CurrentPlayer);
+        currentPlayerObject.RootNode.appendChild(currentPlayerObject.Label);
+
+        return currentPlayerObject;
     }
 
     function buildPlayer() {

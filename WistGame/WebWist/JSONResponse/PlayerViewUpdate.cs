@@ -18,6 +18,7 @@ namespace WebWist
         public int PlayedCard;
         public int Score;
         public Player[] OtherPlayers;
+        public int CurrentPlayer;
 
         public struct Player
         {
