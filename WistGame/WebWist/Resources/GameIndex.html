@@ -261,12 +261,18 @@
     }
 
     function handleSandboxUpdate(messageData) {
-        for (var changeIndex = 0; messageData.GameChanges.length; ++changeIndex) {
+        for (var changeIndex = 0; changeIndex < messageData.GameChanges.length; ++changeIndex) {
             var gameChange = messageData.GameChanges[changeIndex];
             if (gameChange.ChangeType == "GameStateChange") {
                 gameState.GameStateID = gameChange.GameChanges;
 
                 commonInfoObject.CurrentPlayerLabel.textContent = commonInfoObject.CurrentPlayerMessage + gameChange.PlayerIndex;
+                if (gameState.GameStateID == "Fold") {
+                    setHandCardInteractable(true);
+                }
+                else {
+                    setHandCardInteractable(false);
+                }
             }
             else if (gameChange.ChangeType == "PlayerBet") {
                 if (gameChange.PlayerIndex == localPlayerIndex) {
@@ -276,11 +282,33 @@
                     otherPlayerObject.BetLabel.textContent = "Bet " + gameChange.BetValue;
                 }
             }
+
             else if (gameChange.ChangeType == "PlayedCard") {
+                var playerIndex = gameChange.PlayedCards.PlayerIndex;
+                var cardIndex = gameChange.PlayedCard.CardIndex;
+                if (playerIndex == localPlayerIndex) {
+                    var nbCards = gameState.Cards.length;
+                    gameState.Cards[cardIndex] = null;
+                    for (var index = cardIndex + 1; index < nbCards; ++index) {
+                        gameState.Cards[cardIndex - 1] = gameState.Cards[cardIndex];
+                    }
+
+                    playerObject.Hand.RootNode.removeChild(playerObject.Hand.RootNode.childNodes[cardIndex]);
+                }
+                else {
+                    gameState.OtherPlayers[playerIndex].NumberOfCards--;
+                    otherPlayerObject[playerIndex].NumberOfCardsLabel.textContent = "Number of cards " + gameState.OtherPlayers[playerIndex].NumberOfCards;
+                }
             }
             else if (gameChange.ChangeType == "NextPlayer") {
                 commonInfoObject.CurrentPlayerLabel.textContent = commonInfoObject.CurrentPlayerMessage + gameChange.PlayerIndex;
             }
+        }
+    }
+
+    function setHandCardInteractable(interactable) {
+        for (var index = 0; index < playerObject.Hand.Cards.length; ++index) {
+            playerObject.Hand.Cards[index].Button.hidden = interactable;
         }
     }
 
@@ -351,6 +379,17 @@
             column.appendChild(cardObject.RootNode);
             playerHand.RootNode.appendChild(column);
             playerHand.Cards[index] = cardObject;
+
+            (function (card) {
+                cardObject.Button.addEventListener("click", function () {
+                    for (var cindex = 0; cindex < playerHand.Cards.length; ++cindex) {
+                        if (playerHand.Cards[cindex] == card) {
+                            requestPlayCard(cindex);
+                            break;
+                        }
+                    }
+                });
+            }) (cardObject);
         }
 
         return playerHand;
@@ -358,9 +397,18 @@
 
     function buildCard(cardData) {
         var cardObject = {};
-        cardObject.RootNode = createElementWithClass("div", "card");
+        cardObject.RootNode = createElementWithClass("table", "card");
+        var row = document.createElement("tr");
         cardObject.CardLabel = document.createTextNode(ValueLabel[cardData.Value] + " of " + SigilSymbol[cardData.Sigil]);
-        cardObject.RootNode.appendChild(cardObject.CardLabel);
+        row.appendChild(cardObject.CardLabel);
+        cardObject.RootNode.appendChild(row);
+        row = document.createElement("tr");
+        cardObject.Button = document.createElement("button");
+        cardObject.ButtonLabel = document.createTextNode("Play");
+        row.appendChild(cardObject.Button);
+        cardObject.Button.appendChild(cardObject.ButtonLabel);
+        cardObject.RootNode.appendChild(row);
+        cardObject.Button.hidden = true;
 
         return cardObject;
     }
@@ -476,6 +524,14 @@
         };
 
         doSend(betOrder);
+    }
+
+    function requestPlayCard(cardIndex) {
+        var orderID = nextOrderID++;
+        var playOrder = '{"OrderType":"PlayCard", "CardIndex": ' + cardIndex + ', OrderID : ' + orderID + '}';
+        pendingOrders[orderID] = function (responseData) { };
+
+        doSend(playOrder);
     }
 
     function clearChilds(node) {
