@@ -228,6 +228,40 @@
 
                         break;
                     }
+                case "PlayCard":
+                    {
+                        int playerIndex = client.PlayerIndex;
+                        int cardIndex = order.CardIndex;
+
+                        WistGame.PlayCardOrder playOrder = new WistGame.PlayCardOrder()
+                        {
+                            PlayerIndex = playerIndex,
+                            CardIndex = cardIndex,
+                        };
+
+                        this.workingGameChanges.Clear();
+                        WistGame.Failures failures = this.gameManager.ProcessOrder(playOrder, this.workingGameChanges);
+
+                        OrderAcknowledgement acknowledgement = new OrderAcknowledgement()
+                        {
+                            OrderID = order.OrderID,
+                            FailureFlags = failures,
+                        };
+
+                        this.SendResponseToClient(acknowledgement, client);
+
+                        if (failures == WistGame.Failures.None)
+                        {
+                            SandboxChanges sandboxChanges = new SandboxChanges()
+                            {
+                                GameChanges = this.workingGameChanges.GetGameChanges(),
+                            };
+
+                            this.BroadCast(sandboxChanges);
+                        }
+
+                        break;
+                    }
 
                 default:
                     {

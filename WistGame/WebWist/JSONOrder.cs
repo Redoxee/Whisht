@@ -11,6 +11,7 @@ namespace WebWist
         public int OrderID = -1;
         public int PlayerIndex = -1;
         public int BetValue = -1;
+        public int CardIndex = -1;
         public bool[] AvailablePlayerIndexes = null;
     }
 }
