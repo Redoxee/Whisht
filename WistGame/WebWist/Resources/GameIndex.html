@@ -273,6 +273,13 @@
                 else {
                     setHandCardInteractable(false);
                 }
+
+                if (gameState.GameStateID == "Bet") {
+                    playerObject.PlayerBets.RootNode.hidden = false;
+                }
+                else {
+                    playerObject.PlayerBets.RootNode.hidden = true;
+                }
             }
             else if (gameChange.ChangeType == "PlayerBet") {
                 if (gameChange.PlayerIndex == localPlayerIndex) {
@@ -284,16 +291,16 @@
             }
 
             else if (gameChange.ChangeType == "PlayedCard") {
-                var playerIndex = gameChange.PlayedCards.PlayerIndex;
-                var cardIndex = gameChange.PlayedCard.CardIndex;
+                var playerIndex = gameChange.PlayedCard.PlayerIndex;
+                var cardIndex = gameChange.PlayedCard.IndexInHand;
                 if (playerIndex == localPlayerIndex) {
-                    var nbCards = gameState.Cards.length;
-                    gameState.Cards[cardIndex] = null;
+                    var nbCards = gameState.Hand.length;
+                    gameState.Hand[cardIndex] = null;
                     for (var index = cardIndex + 1; index < nbCards; ++index) {
-                        gameState.Cards[cardIndex - 1] = gameState.Cards[cardIndex];
+                        gameState.Hand[cardIndex - 1] = gameState.Hand[cardIndex];
                     }
 
-                    playerObject.Hand.RootNode.removeChild(playerObject.Hand.RootNode.childNodes[cardIndex]);
+                    playerObject.Hand.RootNode.childNodes[0].removeChild(playerObject.Hand.RootNode.childNodes[0].childNodes[cardIndex]);
                 }
                 else {
                     gameState.OtherPlayers[playerIndex].NumberOfCards--;
