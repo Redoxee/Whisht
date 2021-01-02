@@ -91,7 +91,7 @@
     var output = document.querySelector("#output");
 
     var playArea = document.querySelector("#playArea");
-    var currentPlayerObject = {};
+    var commonInfoObject = {};
     var playerObject = {};
 
     var otherPlayersParent = document.createElement("table");
@@ -114,7 +114,6 @@
     writeToScreen("WS URI " + gameWebSocketUrl);
 
     createWebSocket();
-
 
     function doSend(message) {
         writeToScreen("SENT: " + message);
@@ -267,7 +266,7 @@
             if (gameChange.ChangeType == "GameStateChange") {
                 gameState.GameStateID = gameChange.GameChanges;
 
-                currentPlayerObject.Label.textContent = currentPlayerObject.Message + gameChange.PlayerIndex;
+                commonInfoObject.CurrentPlayerLabel.textContent = commonInfoObject.CurrentPlayerMessage + gameChange.PlayerIndex;
             }
             else if (gameChange.ChangeType == "PlayerBet") {
                 if (gameChange.PlayerIndex == localPlayerIndex) {
@@ -280,7 +279,7 @@
             else if (gameChange.ChangeType == "PlayedCard") {
             }
             else if (gameChange.ChangeType == "NextPlayer") {
-                currentPlayerObject.Label.textContent = currentPlayerObject.Message + gameChange.PlayerIndex;
+                commonInfoObject.CurrentPlayerLabel.textContent = commonInfoObject.CurrentPlayerMessage + gameChange.PlayerIndex;
             }
         }
     }
@@ -289,8 +288,8 @@
         clearPlayArea();
 
         if (gameState.GameStateID == "Betting" || gameState.GameStateID == "Fold") {
-            var currentPlayer = buildCurrentPlayer();
-            playArea.appendChild(currentPlayer.RootNode);
+            var commonInfos = buildCommonInfos();
+            playArea.appendChild(commonInfos.RootNode);
 
             buildOtherPlayersNode();
             playArea.appendChild(otherPlayersParent);
@@ -304,14 +303,20 @@
         }
     }
 
-    function buildCurrentPlayer()
+    function buildCommonInfos()
     {
-        currentPlayerObject.RootNode = document.createElement("p");
-        currentPlayerObject.Message = "Current player : ";
-        currentPlayerObject.Label = document.createTextNode(currentPlayerObject.Message + gameState.CurrentPlayer);
-        currentPlayerObject.RootNode.appendChild(currentPlayerObject.Label);
+        commonInfoObject.RootNode = document.createElement("table");
+        var playerParagraph = document.createElement("p");
+        commonInfoObject.RootNode.appendChild(playerParagraph);
+        commonInfoObject.CurrentPlayerMessage = "Current player : ";
+        commonInfoObject.CurrentPlayerLabel = document.createTextNode(commonInfoObject.CurrentPlayerMessage + gameState.CurrentPlayer);
+        playerParagraph.appendChild(commonInfoObject.CurrentPlayerLabel);
 
-        return currentPlayerObject;
+        var trumpCard = buildCard(gameState.TrumpCard);
+        commonInfoObject.RootNode.appendChild(document.createTextNode("Trump card"));
+        commonInfoObject.RootNode.appendChild(trumpCard.RootNode);
+
+        return commonInfoObject;
     }
 
     function buildPlayer() {

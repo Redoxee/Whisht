@@ -101,6 +101,7 @@
             view.Score = player.Score;
             view.GameStateID = this.gameManager.GetStateID();
             view.CurrentPlayer = sandbox.CurrentPlayer;
+            view.TrumpCard = sandbox.TrumpCard;
 
             if (view.GameStateID == WistGame.GameStateID.Betting)
             {

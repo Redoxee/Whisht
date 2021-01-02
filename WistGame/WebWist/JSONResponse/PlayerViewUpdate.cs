@@ -12,6 +12,7 @@ namespace WebWist
 
         public WistGame.GameStateID GameStateID;
         public int PlayerIndex;
+        public WistGame.Card TrumpCard;
         public WistGame.Card[] Hand;
         public WistGame.Failures[] BetFailures;
         public int Bet;
