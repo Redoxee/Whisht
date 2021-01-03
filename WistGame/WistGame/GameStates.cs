@@ -160,7 +160,7 @@
                 betCummul += sandbox.Players[index].Bet;
             }
 
-            int forbidenCummul = handSize * sandbox.Players.Length;
+            int forbidenCummul = handSize;
 
             return forbidenCummul - betCummul;
         }
