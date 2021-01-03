@@ -434,7 +434,8 @@
 
             playerBetting.BettingNode.appendChild(betObject.BetRootNode);
 
-            if (gameState.BetFailures[index] != 0) {
+            writeToScreen(gameState.BetFailures[index]);
+            if (gameState.BetFailures[index] != "None") {
                 betObject.Button.disabled = true;
             }
             else {
@@ -514,7 +515,7 @@
         var orderID = nextOrderID++;
         var requestPlayerIndex = '{"OrderType":"SelectPlayerSlot", "PlayerIndex": ' + requestedIndex + ', "OrderID" : ' + orderID + '}';
         pendingOrders[orderID] = function (responseData) {
-            if (responseData.FailureFlags == 0) {
+            if (responseData.FailureFlags == "None") {
                 localPlayerIndex = requestedIndex;
             }
         };
@@ -526,7 +527,7 @@
         var orderID = nextOrderID++;
         var betOrder = '{"OrderType":"PlaceBet", "BetValue": ' + betValue + ', "OrderID" : ' + orderID + '}';
         pendingOrders[orderID] = function (responseData) {
-            if (responseData.FailureFlags == 0) {
+            if (responseData.FailureFlags == "None") {
             }
         };
 

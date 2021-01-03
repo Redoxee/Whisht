@@ -9,6 +9,7 @@ namespace WebWist
     {
         public override string MessageType => "OrderAcknowledgement";
         public int OrderID;
+        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public WistGame.Failures FailureFlags;
     }
 }

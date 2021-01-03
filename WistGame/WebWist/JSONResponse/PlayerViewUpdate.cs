@@ -14,6 +14,7 @@ namespace WebWist
         public int PlayerIndex;
         public WistGame.Card TrumpCard;
         public WistGame.Card[] Hand;
+        [Newtonsoft.Json.JsonProperty("BetFailures", ItemConverterType = typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public WistGame.Failures[] BetFailures;
         public int Bet;
         public int PlayedCard;
