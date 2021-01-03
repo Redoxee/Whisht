@@ -303,7 +303,7 @@
 
     internal class ResolveFoldState : GameState
     {
-        public override GameStateID StateID => GameStateID.Fold;
+        public override GameStateID StateID => GameStateID.Unkown;
 
         public override void StartState(GameStateMachine stateMachine)
         {

@@ -74,7 +74,7 @@ namespace WistGame
                 this.currentState = next;
                 this.currentState.StartState(this);
 
-                if (gameChanges != null)
+                if (gameChanges != null && this.currentState.StateID != GameStateID.Unkown)
                 {
                     ref GameChange gameChange = ref gameChanges.AllocateGameChange();
                     gameChange.ChangeType = GameChange.GameChangeType.GameStateChange;
