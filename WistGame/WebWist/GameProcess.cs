@@ -257,6 +257,8 @@
                                 GameChanges = this.workingGameChanges.GetGameChanges(),
                             };
 
+                            this.AddPlayerViewIfNecessary(sandboxChanges, client.PlayerIndex);
+
                             this.BroadCast(sandboxChanges);
                         }
 
@@ -271,7 +273,20 @@
             }
         }
 
-        public JSONResponse RequestAvailablePlayerSlots()
+        private void AddPlayerViewIfNecessary(SandboxChanges sandboxChanges, int playerIndex)
+        {
+            for (int index = 0; index < sandboxChanges.GameChanges.Length; ++index)
+            {
+                if (sandboxChanges.GameChanges[index].ChangeType == WistGame.GameChange.GameChangeType.GameStateChange &&
+                    sandboxChanges.GameChanges[index].GameState == WistGame.GameStateID.Initialize)
+                {
+                    sandboxChanges.PlayerViewUpdate = this.GetPlayerView(playerIndex);
+                    return;
+                }
+            }
+        }
+
+        private JSONResponse RequestAvailablePlayerSlots()
         {
             AvailablePlayerSlot response = new AvailablePlayerSlot();
             response.AvaialablePlayerSlots = new bool[this.clientByPlayerIndex.Length];
@@ -283,7 +298,7 @@
             return response;
         }
 
-        public void SendResponseToClient(JSONResponse response, ConnectedClient client)
+        private void SendResponseToClient(JSONResponse response, ConnectedClient client)
         {
             Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
             System.IO.StringWriter stringWriter = new System.IO.StringWriter();
@@ -295,7 +310,7 @@
             client.MessageQueue.Add(message);
         }
 
-        public void BroadCast(JSONResponse response)
+        private void BroadCast(JSONResponse response)
         {
             Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
             System.IO.StringWriter stringWriter = new System.IO.StringWriter();

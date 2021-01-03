@@ -10,5 +10,6 @@ namespace WebWist
         public override string MessageType => nameof(SandboxChanges);
 
         public WistGame.GameChange[] GameChanges;
+        public PlayerViewUpdate PlayerViewUpdate;
     }
 }
