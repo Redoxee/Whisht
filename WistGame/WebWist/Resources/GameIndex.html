@@ -84,6 +84,83 @@
         "Ace",
     ];
 
+    class Player {
+        constructor() {
+            this.RootNode = createElementWithClass("table", "player");
+            this.PlayerLabel = document.createTextNode("Player " + localPlayerIndex);
+            var paragraph = document.createElement("p");
+            paragraph.appendChild(this.PlayerLabel);
+            this.RootNode.appendChild(paragraph);
+
+            this.Hand = new Hand();
+            this.RootNode.appendChild(this.Hand.RootNode);
+
+            this.BetLabel = document.createTextNode("Betting ?");
+
+            this.PlayerBets = new Bettings();
+        }
+    }
+
+    class Hand {
+        constructor() {
+            this.RootNode = createElementWithClass("table", "playerHand");
+            this.Cards = [];
+
+            this.CardPoolSize = 27;
+
+            for (var index = 0; index < this.CardPoolSize; ++index) {
+                this.Cards[index] = new Card();
+            }
+        }
+    }
+
+    class Card {
+        constructor() {
+            this.RootNode = createElementWithClass("table", "card");
+            var row = document.createElement("tr");
+            this.CardLabel = document.createTextNode("? of ?");
+            row.appendChild(this.CardLabel);
+            this.RootNode.appendChild(row);
+            row = document.createElement("tr");
+            this.Button = document.createElement("button");
+            this.ButtonLabel = document.createTextNode("Play");
+            row.appendChild(this.Button);
+            this.Button.appendChild(this.ButtonLabel);
+            this.RootNode.appendChild(row);
+            this.Button.hidden = true;
+        }
+
+        SetCardData() {
+            this.CardLabel.textContent = ValueLabel[cardData.Value] + " of " + SigilSymbol[cardData.Sigil];
+        }
+
+        SetInteractable(interactable) {
+            this.Button.hidden = !interactable;
+        }
+    }
+
+    class Bet{
+        constructor(betValue) {
+            this.Value = betValue;
+            this.RootNode = createElementWithClass("table","bet");
+        }
+    }
+
+    class Bettings {
+        constructor() {
+            this.RootNode = document.createElement("table");
+            this.BettingNode = document.createElement("tr");
+            this.RootNode.appendChild(this.BettingNode);
+            this.Bets = [];
+            this.BetPoolSize = 28;
+
+            for (var index = 0; index < this.BetPoolSize; ++index) {
+                var bet = new Bet(index);
+                this.Bets[index] = bet;
+            }
+        }
+    }
+
     var websocket = null;
     var isConnected = false;
     var gameWebSocketUrl = document.URL.replace("http://", "ws://");
@@ -93,6 +170,8 @@
     var playArea = document.querySelector("#playArea");
     var commonInfoObject = {};
     var playerObject = {};
+    var player = {};
+    CreateGameElements();
 
     var otherPlayersParent = document.createElement("table");
     var otherPlayers = [];
@@ -317,6 +396,10 @@
         for (var index = 0; index < playerObject.Hand.Cards.length; ++index) {
             playerObject.Hand.Cards[index].Button.hidden = interactable;
         }
+    }
+
+    function CreateGameElements() {
+        player = new Player();
     }
 
     function SetupFromGameState() {
