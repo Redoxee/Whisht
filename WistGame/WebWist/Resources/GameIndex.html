@@ -161,6 +161,45 @@
         }
     }
 
+    class PlayerSlots {
+        constructor() {
+            this.RootNode = document.createElement("table");
+            this.Buttons = [];
+            var row = document.createElement("tr");
+            this.RootNode.appendChild(row);
+
+            this.PoolSize = 10;
+            for (var index = 0; index < this.PoolSize; ++index) {
+                this.Buttons[index] = document.createElement("button");
+                var label = document.createTextNode("Player " + (index + 1));
+                this.Buttons[index].appendChild(label);
+                row.appendChild(this.Buttons[index]);
+
+                (function (capturedButton, capturedIndex) {
+                    capturedButton.addEventListener("click", function () {
+                        requestPlayerSlots(capturedIndex);
+                    })
+                })(this.Buttons[index], index);
+            }
+        }
+
+        Setup(availableSlost) {
+            for (var index = 0; index < this.PoolSize; ++index) {
+                if (index >= availableSlots.length) {
+                    this.Buttons[index].hidden = true;
+                    continue;
+                }
+
+                if (!availableSlots[index]) {
+                    this.Buttons[index].hidden = true;
+                    continue;
+                }
+
+                this.Buttons[index].hidden = false;
+            }
+        }
+    }
+
     var websocket = null;
     var isConnected = false;
     var gameWebSocketUrl = document.URL.replace("http://", "ws://");
@@ -170,8 +209,8 @@
     var playArea = document.querySelector("#playArea");
     var commonInfoObject = {};
     var playerObject = {};
-    var player = {};
-    CreateGameElements();
+    var player = new Player();
+    var playerSlots = new PlayerSlots();
 
     var otherPlayersParent = document.createElement("table");
     var otherPlayers = [];
@@ -266,39 +305,10 @@
 
         if (localPlayerIndex < 0) {
             clearPlayArea();
-            var numberOfSlots = 0;
-            if (availableSlots.length > 0) {
-                var table = document.createElement("table");
-                var tr = document.createElement("tr");
-                table.appendChild(tr);
-                for (var index = 0; index < availableSlots.length; ++index) {
-                    if (availableSlots[index]) {
-                        numberOfSlots++;
-                        var th = document.createElement("th");
-                        var playerSlotButton = document.createElement("button");
-                        th.appendChild(playerSlotButton);
-                        tr.appendChild(th);
 
-                        playerSlotButton.appendChild(document.createTextNode("Player " + (index + 1)));
-                        (function (i) {
-                            playerSlotButton.addEventListener("click", function () {
-                                requestPlayerSlots(i);
-                            })
-                        })(index);
-                    }
-                }
-
-                if (numberOfSlots >= 0) {
-                    playArea.appendChild(table);
-                }
-            }
-
-            if (numberOfSlots <= 0) {
-                var p = document.createElement("p").appendChild(document.createTextNode("No more slots available"));
-                playArea.appendChild(p);
-            }
+            playerSlots.Setup(availableSlots);
+            playArea.appendChild(playerSlots.RootNode);
         }
-
         else {
             var numberOfAvailableSlots = 0;
             for (var index = 0; index < availableSlots.length; ++index) {
@@ -396,10 +406,6 @@
         for (var index = 0; index < playerObject.Hand.Cards.length; ++index) {
             playerObject.Hand.Cards[index].Button.hidden = interactable;
         }
-    }
-
-    function CreateGameElements() {
-        player = new Player();
     }
 
     function SetupFromGameState() {
