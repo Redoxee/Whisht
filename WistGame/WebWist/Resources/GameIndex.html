@@ -167,6 +167,10 @@
             var textNode = document.createTextNode("" + betValue);
             this.Button.appendChild(textNode);
             this.RootNode.appendChild(this.Button);
+
+            this.Button.addEventListener("click", function () {
+                requestBet(betValue);
+            });
         }
     }
 
@@ -325,10 +329,8 @@
     var gameWebSocketUrl = document.URL.replace("http://", "ws://");
 
     var output = document.querySelector("#output");
-
     var playArea = document.querySelector("#playArea");
-    var commonInfoObject = {};
-    var playerObject = {};
+
     var player = new Player();
     var playerSlots = new PlayerSlots();
     var gameInfo = new GameInfo();
@@ -549,120 +551,6 @@
                 playArea.appendChild(bettings.RootNode);
             }
         }
-    }
-
-    function buildPlayer() {
-        playerObject.RootNode = createElementWithClass("table", "player");
-        playerObject.PlayerLabel = document.createTextNode("Player " + localPlayerIndex);
-        var paragraph = document.createElement("p");
-        paragraph.appendChild(playerObject.PlayerLabel);
-        playerObject.RootNode.appendChild(paragraph);
-
-        playerObject.Hand = buildPlayerHand();
-        playerObject.RootNode.appendChild(playerObject.Hand.RootNode);
-
-        playerObject.BetLabel = document.createTextNode("Betting " + gameState.Bet);
-        if (gameState.Bet >= 0) {
-            playerObject.RootNode.appendChild(playerObject.BetLabel);
-        } 
-
-        playerObject.PlayerBets = buildPlayerBetting();
-
-        return playerObject;
-    }
-
-    function buildPlayerHand() {
-        var playerHand = {};
-        playerHand.RootNode = createElementWithClass("table", "playerHand");
-        playerHand.Cards = [];
-
-        for (var index = 0; index < gameState.Hand.length; ++index) {
-            var cardData = gameState.Hand[index];
-            var column = document.createElement("th");
-            var cardObject = buildCard(cardData);
-            column.appendChild(cardObject.RootNode);
-            playerHand.RootNode.appendChild(column);
-            playerHand.Cards[index] = cardObject;
-
-            (function (card) {
-                cardObject.Button.addEventListener("click", function () {
-                    for (var cindex = 0; cindex < playerHand.Cards.length; ++cindex) {
-                        if (playerHand.Cards[cindex] == card) {
-                            requestPlayCard(cindex);
-                            break;
-                        }
-                    }
-                });
-            }) (cardObject);
-        }
-
-        return playerHand;
-    }
-
-    function buildCard(cardData) {
-        var cardObject = {};
-        cardObject.RootNode = createElementWithClass("table", "card");
-        var row = document.createElement("tr");
-        cardObject.CardLabel = document.createTextNode(ValueLabel[cardData.Value] + " of " + SigilSymbol[cardData.Sigil]);
-        row.appendChild(cardObject.CardLabel);
-        cardObject.RootNode.appendChild(row);
-        row = document.createElement("tr");
-        cardObject.Button = document.createElement("button");
-        cardObject.ButtonLabel = document.createTextNode("Play");
-        row.appendChild(cardObject.Button);
-        cardObject.Button.appendChild(cardObject.ButtonLabel);
-        cardObject.RootNode.appendChild(row);
-        cardObject.Button.hidden = true;
-
-        return cardObject;
-    }
-
-    function buildPlayerBetting() {
-        var playerBetting = {};
-
-        playerBetting.RootNode = document.createElement("table");
-        playerBetting.BettingNode = document.createElement("tr");
-        playerBetting.RootNode.appendChild(playerBetting.BettingNode);
-
-        var numberOfBets = gameState.BetFailures.length;
-        for (var index = 0; index < numberOfBets; ++index) {
-            var betObject = buildBetObject();
-            betObject.MainLabel.textContent = index;
-
-            playerBetting.BettingNode.appendChild(betObject.BetRootNode);
-
-            writeToScreen(gameState.BetFailures[index]);
-            if (gameState.BetFailures[index] != "None") {
-                betObject.Button.disabled = true;
-            }
-            else {
-                (function (bet) {
-                    betObject.Button.addEventListener("click", function () {
-                        requestBet(bet);
-                    });
-                })(index);
-            }
-        }
-
-        return playerBetting;
-    }
-
-    function buildBetObject() {
-        var bet = {};
-        bet.BetRootNode = createElementWithClass("th", "bet");
-        var table = document.createElement("table");
-        bet.BetRootNode.appendChild(table);
-
-        var paragraphe = document.createElement("p");
-        table.appendChild(paragraphe);
-        bet.MainLabel = document.createTextNode("");
-        paragraphe.appendChild(bet.MainLabel);
-
-        bet.Button = document.createElement("button");
-        bet.Button.appendChild(document.createTextNode("bet"));
-        table.appendChild(bet.Button);
-
-        return bet;
     }
 
     function requestPlayerSlots(requestedIndex) {
