@@ -113,7 +113,7 @@
             this.PoolSize = 27;
 
             for (var index = 0; index < this.PoolSize; ++index) {
-                this.Cards[index] = new Card();
+                this.Cards[index] = new Card(index);
                 var col = document.createElement("th");
                 this.RootNode.appendChild(col);
                 col.appendChild(this.Cards[index].RootNode);
@@ -121,7 +121,6 @@
         }
 
         Setup(cards) {
-            writeToScreen("number of cards " + cards.length);
             for (var index = 0; index < this.PoolSize; ++index) {
                 if (index >= cards.length) {
                     this.Cards[index].RootNode.hidden = true;
@@ -132,11 +131,18 @@
                 this.Cards[index].Setup(cards[index]);
             }
         }
+
+        SetInteractable(isInteractable) {
+            for (var index = 0; index < this.PoolSize; ++index) {
+                this.Cards[index].SetInteractable(isInteractable);
+            }
+        }
     }
 
     class Card {
-        constructor() {
+        constructor(cardIndex) {
             this.RootNode = createElementWithClass("table", "card");
+            this.CardIndex = cardIndex;
             var row = document.createElement("tr");
             this.CardLabel = document.createTextNode("? of ?");
             row.appendChild(this.CardLabel);
@@ -148,6 +154,10 @@
             this.Button.appendChild(this.ButtonLabel);
             this.RootNode.appendChild(row);
             this.Button.hidden = true;
+
+            this.Button.addEventListener("click", function () {
+                requestPlayCard(cardIndex)
+            });
         }
 
         Setup(cardData) {
@@ -200,6 +210,10 @@
 
                 this.Bets[index].RootNode.hidden = false;
             }
+        }
+
+        SetVisible(isVisible) {
+            this.RootNode.hidden = !isVisible;
         }
     }
 
@@ -260,11 +274,16 @@
             this.CurrentPlayerLabel.textContent = this.CurrentPlayerMessage + (playerIndex + 1);
             this.Atout.Setup(atoutCardData);
         }
+
+        SetCurrentPlayer(currentPlayer) {
+            this.CurrentPlayerLabel.textContent = this.CurrentPlayerMessage + (currentPlayer + 1);
+        }
     }
 
     class Opponent {
         constructor(index) {
             this.RootNode = createElementWithClass("table", "otherPlayer");
+            this.OpponentIndex = index;
 
             var row = document.createElement("tr");
             this.RootNode.appendChild(row);
@@ -290,7 +309,11 @@
         Setup(opponentData) {
             this.ScoreLabel.textContent = "Score : " + opponentData.CurrentScore;
             this.BetLabel.textContent = "Bet : " + opponentData.Bet;
-            this.CardLabel.textContent = opponentData.NumberOfCards;
+            this.CardLabel.textContent = "Cards in hand : " + opponentData.NumberOfCards;
+        }
+
+        SetBetValue(betValue) {
+            this.BetLabel.textContent = "Bet : " + betValue;
         }
     }
 
@@ -321,6 +344,10 @@
                 this.Opponents[index].Setup(opponentsData[index]);
                 this.Opponents[index].RootNode.hidden = false;
             }
+        }
+
+        SetOpponentBet(opponentIndex, betValue) {
+            this.Opponents[opponentIndex].SetBetValue(betValue);
         }
     }
 
@@ -478,29 +505,29 @@
         for (var changeIndex = 0; changeIndex < messageData.GameChanges.length; ++changeIndex) {
             var gameChange = messageData.GameChanges[changeIndex];
             if (gameChange.ChangeType == "GameStateChange") {
-                gameState.GameStateID = gameChange.GameChanges;
+                gameState.GameStateID = gameChange.GameState;
 
-                commonInfoObject.CurrentPlayerLabel.textContent = commonInfoObject.CurrentPlayerMessage + gameChange.PlayerIndex;
+                gameInfo.SetCurrentPlayer(gameChange.PlayerIndex);
+
                 if (gameState.GameStateID == "Fold") {
-                    setHandCardInteractable(true);
+                    player.Hand.SetInteractable(true);
                 }
                 else {
-                    setHandCardInteractable(false);
+                    player.Hand.SetInteractable(false);
                 }
 
                 if (gameState.GameStateID == "Bet") {
-                    playerObject.PlayerBets.RootNode.hidden = false;
+                    bettings.SetVisible(true);
                 }
                 else {
-                    playerObject.PlayerBets.RootNode.hidden = true;
+                    bettings.SetVisible(false);
                 }
             }
             else if (gameChange.ChangeType == "PlayerBet") {
                 if (gameChange.PlayerIndex == localPlayerIndex) {
                 }
                 else {
-                    var otherPlayerObject = otherPlayers[gameChange.PlayerIndex];
-                    otherPlayerObject.BetLabel.textContent = "Bet " + gameChange.BetValue;
+                    opponentsTable.SetOpponentBet(gameChange.PlayerIndex, gameChange.BetValue);
                 }
             }
 
@@ -522,7 +549,7 @@
                 }
             }
             else if (gameChange.ChangeType == "NextPlayer") {
-                commonInfoObject.CurrentPlayerLabel.textContent = commonInfoObject.CurrentPlayerMessage + gameChange.PlayerIndex;
+                gameInfo.SetCurrentPlayer(gameChange.PlayerIndex);
             }
         }
     }
@@ -546,7 +573,7 @@
             player.Setup(gameState);
             playArea.appendChild(player.RootNode);
 
-            if (gameState.GameStateID == "Betting") {
+            if (gameState.GameStateID == "Betting" && gameState.Bet == -1) {
                 bettings.Setup(gameState.BetFailures);
                 playArea.appendChild(bettings.RootNode);
             }
