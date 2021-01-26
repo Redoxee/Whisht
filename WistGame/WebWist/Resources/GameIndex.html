@@ -96,12 +96,28 @@
             this.RootNode.appendChild(this.Hand.RootNode);
 
             this.BetLabel = document.createTextNode("Betting ?");
+            this.RootNode.appendChild(this.BetLabel);
+
+            this.PlayedCard = new Card(0);
+            this.PlayedCard.SetInteractable(false);
+            this.RootNode.appendChild(this.PlayedCard.RootNode);
+            this.PlayedCard.RootNode.hidden = true;
         }
 
         Setup(gameData) {
             this.PlayerLabel.textContent = "Player " + (gameData.PlayerIndex + 1);
             this.BetLabel.textContent = "Betting " + gameData.Bet;
             this.Hand.Setup(gameData.Hand);
+        }
+
+        SetBetValue(betValue) {
+            this.BetLabel.textContent = "Betting " + betValue;
+        }
+
+        PlayCard(cardIndex) {
+            this.PlayedCard.Setup(this.Hand.Cards[cardIndex].CardData);
+            this.PlayedCard.RootNode.hidden = false;
+            this.Hand.HideCard(cardIndex);
         }
     }
 
@@ -137,6 +153,10 @@
                 this.Cards[index].SetInteractable(isInteractable);
             }
         }
+
+        HideCard(cardIndex) {
+            this.Cards[cardIndex].RootNode.hidden = true;
+        }
     }
 
     class Card {
@@ -161,6 +181,7 @@
         }
 
         Setup(cardData) {
+            this.CardData = cardData;
             this.CardLabel.textContent = ValueLabel[cardData.Value] + " of " + SigilSymbol[cardData.Sigil];
         }
 
@@ -313,6 +334,7 @@
         }
 
         SetBetValue(betValue) {
+            this.BetValue = betValue;
             this.BetLabel.textContent = "Bet : " + betValue;
         }
     }
@@ -541,7 +563,7 @@
                         gameState.Hand[cardIndex - 1] = gameState.Hand[cardIndex];
                     }
 
-                    playerObject.Hand.RootNode.childNodes[0].removeChild(playerObject.Hand.RootNode.childNodes[0].childNodes[cardIndex]);
+                    player.PlayCard(cardIndex);
                 }
                 else {
                     gameState.OtherPlayers[playerIndex].NumberOfCards--;
@@ -605,6 +627,7 @@
         var betOrder = '{"OrderType":"PlaceBet", "BetValue": ' + betValue + ', "OrderID" : ' + orderID + '}';
         pendingOrders[orderID] = function (responseData) {
             if (responseData.FailureFlags == "None") {
+                player.SetBetValue(betValue);
             }
         };
 
